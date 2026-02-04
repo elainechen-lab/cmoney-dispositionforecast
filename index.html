@@ -1029,8 +1029,8 @@
       updatedPill.textContent = "更新時間：" + new Date(res.updatedAt).toLocaleString();
 
       const d = fmtDate(res.tradeDate||"");
-      titleUp.textContent = d ? `漲N%進處置（${d}）` : "漲N%進處置";
-      titleDown.textContent = d ? `跌N%進處置（${d}）` : "跌N%進處置";
+      titleUp.textContent = d ? `漲N% ${d} 進處置` : "漲N%進處置";
+      titleDown.textContent = d ? `跌N% ${d} 進處置` : "跌N%進處置";
 
       render(tblSoon, res.data.soonRelease);
       render(tblDisposed, res.data.disposed);
