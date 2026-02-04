@@ -1,159 +1,1083 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CMoney 處置股票預測</title>
+  <base target="_top" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap');
+
+    :root{
+      --bg1:#fffafa;
+      --bg2:#fff1e8;
+      --bg3:#ffdcd4;
+      --bg4:#ffc9c1;
+
+      --text:#111827;
+      --muted:#6b7280;
+      --line:rgba(17,24,39,.14);
+      --shadow:0 18px 55px rgba(17,24,39,.14);
+      --radius:18px;
+
+      --deepRed:#7c1010;
+      --deepRed2:#5f0b0b;
+      --deepRedHover:#8f1515;
+
+      --accent:#d92c2c;
+      --thead:#fff7f7;
+
+      --rowWarnBg:rgba(253,186,116,.62);
+      --rowWarnLine:rgba(234,88,12,.65);
+
+      --stickyTop:0px;
+      --tabH:44px;
+      --tabH_m:40px;
+
+      /* Mobile cards */
+      --mCardBg:#fff;
+      --mCardBorder:#e8e8e8;
+      --mCardShadow:0 1px 4px rgba(0,0,0,0.06);
+
+      --mSubtle:#f7f7f7;
+      --mSubtle2:#f3f4f6;
+
+      --mGreenBg:#f0fdf4;
+      --mGreenText:#16a34a;
+
+      --mRedBg:#fef2f2;
+      --mRedText:#dc2626;
+
+      --mCycleWarnBg:#fff7ed;
+      --mCycleWarnText:#ea580c;
+      --mCycleWarnBorder:#fed7aa;
+
+      /* Notes block */
+      --noteBg:#fffbeb;
+      --noteBorder:#fde68a;
+      --noteTitle:#b45309;
+      --noteText:#92400e;
+
+      /* Z/C rings */
+      --zBorder:#22c55e;
+      --zText:#15803d;
+      --cBorder:#ef4444;
+      --cText:#b91c1c;
+      --offBorder:#d1d5db;
+      --offText:#9ca3af;
+      --offBg:#f3f4f6;
+    }
+
+    *{ box-sizing:border-box; }
+
     body{
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
-      padding:16px;
-      line-height:1.6;
-      background:#fff;
-      color:#111;
+      margin:0;
+      font-family:"Noto Sans TC", system-ui, -apple-system, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+      color:var(--text);
+      background:linear-gradient(120deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4),var(--bg3),var(--bg2),var(--bg1));
+      background-size:420% 420%;
+      animation:bgFlow 18s ease-in-out infinite;
+      min-height:100vh;
     }
-    h2{margin:0 0 8px}
-    .muted{opacity:.65;font-size:13px}
-    .err{color:#b00020}
-    .card{
-      border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding:12px;
-      margin:14px 0;
-      background:#fff;
+
+    @keyframes bgFlow{
+      0%{ background-position:0% 50%; }
+      50%{ background-position:100% 50%; }
+      100%{ background-position:0% 50%; }
     }
-    .card b{font-size:15px}
-    table{
-      width:100%;
-      border-collapse:collapse;
+
+    .wrap{ max-width:1200px; margin:0 auto; padding:22px 18px 40px; }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .brand{ display:flex; align-items:baseline; gap:14px; min-width:0; }
+
+    .logo{
+      font-size:46px;
+      font-weight:950;
+      letter-spacing:.3px;
+      line-height:1;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+    .logo .cm{ color:var(--accent); }
+    .logo .oney{ color:#111827; }
+
+    .title{
+      font-size:34px;
+      font-weight:950;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+
+    .pill{
+      padding:8px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
       font-size:13px;
-      margin-top:8px;
-    }
-    th,td{
-      border-bottom:1px solid #eee;
-      padding:8px;
-      text-align:left;
-      vertical-align:top;
+      color:var(--muted);
+      box-shadow:0 10px 26px rgba(17,24,39,.10);
       white-space:nowrap;
     }
-    th{
-      background:#fafafa;
-      font-weight:600;
+
+    /* Tabs */
+    .tabsWrap{
+      position:sticky;
+      top:var(--stickyTop);
+      z-index:20;
+      padding:10px 0 12px;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-    pre{
-      margin:8px 0 0;
-      white-space:pre-wrap;
+
+    .tabs{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+    .tab{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      height:var(--tabH);
+      padding:0 14px;
+      border-radius:12px;
+      background:linear-gradient(180deg,var(--deepRed),var(--deepRed2));
+      border:1px solid rgba(0,0,0,.18);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.18);
+      cursor:pointer;
+      font-weight:950;
       font-size:13px;
-      line-height:1.5;
+      user-select:none;
+      transition:background .16s ease, color .16s ease, box-shadow .16s ease, transform .08s ease;
+      flex:0 0 auto;
+    }
+
+    .tab:hover{
+      background:linear-gradient(180deg,var(--deepRedHover),var(--deepRed2));
+      box-shadow:0 10px 22px rgba(0,0,0,.22);
+    }
+    .tab:active{
+      transform:translateY(1px);
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+    }
+
+    .tab.active{
+      background:linear-gradient(180deg,#fff,#f3f4f6);
+      color:#111827;
+      border-color:rgba(17,24,39,.18);
+      box-shadow:0 10px 20px rgba(17,24,39,.14);
+    }
+
+    .tab .ico{
+      width:26px;
+      height:26px;
+      display:grid;
+      place-items:center;
+      border-radius:10px;
+      font-size:14px;
+      line-height:1;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.18);
+      flex:0 0 auto;
+    }
+    .tab.active .ico{
+      background:rgba(217,44,44,.10);
+      border-color:rgba(217,44,44,.22);
+    }
+    .tab .lbl{ white-space:nowrap; }
+
+    .tab .count{
+      margin-left:2px;
+      font-size:12px;
+      font-weight:950;
+      padding:4px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.92);
+      flex:0 0 auto;
+    }
+    .tab.active .count{
+      background:#fff;
+      color:#374151;
+      border-color:rgba(17,24,39,.14);
+    }
+
+    .page{ display:none; margin-top:12px; }
+    .page.active{ display:block; }
+
+    .card{
+      background:#ffffffde;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .hd{
+      position:relative;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .hd h3{
+      margin:0;
+      font-size:16px;
+      font-weight:950;
+      text-align:center;
+      padding:0 70px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:#111827;
+    }
+
+    .tag{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .bd{
+      padding:12px 14px;
+      overflow:auto;
+      flex:1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .card.orange .hd{ background:linear-gradient(180deg,rgba(253,186,116,.85),rgba(255,237,213,.85)); }
+    .card.red .hd{ background:linear-gradient(180deg,rgba(255,176,176,.9),rgba(255,213,213,.9)); }
+    .card.green .hd{ background:linear-gradient(180deg,rgba(167,243,208,.9),rgba(209,250,229,.9)); }
+    .card.purple .hd{ background:linear-gradient(180deg,rgba(196,181,253,.9),rgba(237,233,254,.9)); }
+
+    /* ===== kanban (fast page) - 保持原本，不改 ===== */
+    .kanban{ display:flex; flex-direction:column; gap:18px; }
+    .kanban__lane{ border-radius:12px; padding:10px 14px 12px; }
+    .kanban__lane--urgent{ background:rgba(196,181,253,.35); }
+    .kanban__lane--soon{ background:rgba(196,181,253,.22); }
+    .kanban__lane--normal{ background:rgba(196,181,253,.12); }
+    .kanban__header{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-weight:700; font-size:15px; color:rgba(88,28,135,1); }
+    .kanban__badge{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(139,92,246,.18); color:rgba(88,28,135,.9); }
+    .kanban__chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .kanban__chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; background:#fff; border:1px solid rgba(139,92,246,.2); font-size:13px; color:#1e1b3a; transition:box-shadow .15s, border-color .15s; }
+    .kanban__chip:hover{ border-color:rgba(139,92,246,.5); box-shadow:0 2px 8px rgba(139,92,246,.12); }
+    .kanban__chip-code{ font-weight:700; color:rgba(88,28,135,1); font-family:"JetBrains Mono", monospace; }
+    .kanban__chip-name{ color:#444; }
+
+    .card--min-h-sm{ min-height:540px; }
+    .card--min-h-lg{ min-height:700px; }
+
+    /* Desktop table */
+    .deskTable{ display:block; }
+    table{
+      width:100%;
+      min-width:980px;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:13px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+    th, td{
+      padding:8px 10px;
+      border-bottom:1px solid rgba(17,24,39,.08);
+      word-break:break-word;
+      vertical-align:top;
+    }
+    th{
+      background:var(--thead);
+      font-weight:900;
+      text-align:left;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tr:last-child td{ border-bottom:none; }
+    tr.js-warning { background-color: var(--rowWarnBg); }
+    tr.js-warning td:first-child { border-left: 3px solid var(--rowWarnLine); }
+
+    .center{ text-align:center; }
+
+    .loading,.empty{
+      padding:16px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:13px;
+      color:var(--muted);
+      text-align:center;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    /* ===== 桌機版：說明區塊化（你要的） ===== */
+    .notes{
+      margin-top:12px;
+      background:var(--noteBg);
+      border:1px solid var(--noteBorder);
+      border-radius:12px;
+      padding:14px 14px;
+      white-space:pre-wrap;
+      line-height:1.7;
+      color:var(--noteText);
+      font-size:13px;
+      box-shadow:0 10px 24px rgba(17,24,39,.10);
+    }
+    .notes::before{
+      content:"說明";
+      display:block;
+      font-weight:950;
+      color:var(--noteTitle);
+      margin-bottom:10px;
+      font-size:13px;
+      letter-spacing:.2px;
+    }
+
+    /* ===== 桌機版：資券改成手機同款圓圈框 ===== */
+    .zcDesk{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .zcRingDesk{
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-size:13px;
+      font-weight:900;
+      line-height:1;
+      background:#fff;
+      border:2px solid var(--offBorder);
+      color:var(--offText);
+      vertical-align:middle;
+    }
+    .zcRingDesk.off{ background:var(--offBg); }
+    .zcRingDesk.z.on{ border-color:var(--zBorder); color:var(--zText); background:#fff; }
+    .zcRingDesk.c.on{ border-color:var(--cBorder); color:var(--cText); background:#fff; }
+
+    .footer{ margin-top:16px; text-align:center; font-size:12px; color:var(--muted); font-weight:700; }
+
+    /* mobile cards hidden on desktop */
+    .mCards{ display:none; }
+
+    @media (max-width: 720px){
+      table{ min-width: 860px; }
+      .logo{ font-size:40px; }
+      .title{ font-size:28px; }
+    }
+
+    /* ===== Mobile cards (保持你現在OK的，不改) ===== */
+    @media (max-width: 560px){
+      .wrap{ padding:14px 12px 24px; }
+      .topbar{ align-items:flex-start; margin-bottom:10px; gap:10px; }
+      .brand{ width:100%; align-items:center; gap:10px; }
+      .logo{ font-size:34px; }
+      .title{ font-size:22px; }
+      .pill{ width:100%; text-align:center; padding:8px 12px; font-size:12.5px; }
+
+      .tabs{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling: touch;
+        padding:2px 2px 6px;
+        gap:8px;
+        scrollbar-width:none;
+        -ms-overflow-style:none;
+      }
+      .tabs::-webkit-scrollbar{ display:none; }
+
+      .tab{
+        height: var(--tabH_m);
+        padding:0 12px;
+        border-radius:12px;
+        font-size:12.5px;
+        box-shadow:0 6px 14px rgba(0,0,0,.16);
+      }
+      .tab .ico{ width:24px;height:24px; border-radius:9px; font-size:13px; }
+      .tab .count{ padding:3px 8px; font-size:11px; }
+
+      .bd{ padding:10px 10px; }
+      .hd h3{ padding:0 62px; font-size:15px; }
+
+      .deskTable{ display:none; }
+      .mCards{ display:flex; flex-direction:column; gap:12px; }
+
+      .mCard{
+        background:var(--mCardBg);
+        border-radius:12px;
+        padding:16px;
+        border:1px solid var(--mCardBorder);
+        box-shadow:var(--mCardShadow);
+      }
+      .mCard.warn{
+        border-color: rgba(234,88,12,.35);
+        box-shadow: 0 1px 4px rgba(234,88,12,0.10);
+      }
+
+      .mTop{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:12px;
+        margin-bottom:14px;
+      }
+
+      .mId{ min-width:0; }
+
+      .mCode{
+        font-family:"JetBrains Mono", monospace;
+        font-size:24px;
+        font-weight:700;
+        color:#1a1a1a;
+        line-height:1;
+      }
+
+      .mName{
+        font-size:14px;
+        color:#666;
+        margin-top:4px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .mRight{
+        display:flex;
+        flex-direction:column;
+        align-items:flex-end;
+        gap:8px;
+        flex: 0 0 auto;
+      }
+
+      .mCycle{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:4px 12px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+        white-space:nowrap;
+        border:1px solid #e5e7eb;
+        background:var(--mSubtle2);
+        color:#888;
+      }
+      .mCycle.warn{
+        background:var(--mCycleWarnBg);
+        color:var(--mCycleWarnText);
+        border-color:var(--mCycleWarnBorder);
+      }
+
+      .zcRow{ display:flex; gap:8px; }
+      .zcRing{
+        width:26px;
+        height:26px;
+        border-radius:999px;
+        display:grid;
+        place-items:center;
+        font-size:13px;
+        font-weight:900;
+        line-height:1;
+        background:#fff;
+        border:2px solid var(--offBorder);
+        color:var(--offText);
+      }
+      .zcRing.off{ background:var(--offBg); }
+      .zcRing.z.on{ border-color:var(--zBorder); color:var(--zText); background:#fff; }
+      .zcRing.c.on{ border-color:var(--cBorder); color:var(--cText); background:#fff; }
+
+      .mGrid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      }
+
+      .mBox{
+        background:var(--mSubtle);
+        border-radius:8px;
+        padding:12px 14px;
+        min-width:0;
+      }
+      .mBoxTitle{
+        font-size:12px;
+        color:#999;
+        margin-bottom:6px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .mBoxVal{
+        font-family:"JetBrains Mono", monospace;
+        font-size:20px;
+        font-weight:650;
+        color:#1a1a1a;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .mBoxVal.date{
+        font-size:15px;
+        font-weight:650;
+        white-space:normal;
+        overflow:visible;
+        text-overflow:clip;
+        word-break:break-word;
+        line-height:1.25;
+      }
+
+      .mBoxPct.pos{ background:var(--mRedBg); }
+      .mBoxPct.neg{ background:var(--mGreenBg); }
+      .mBoxPct.pos .mBoxVal{ color:var(--mRedText); font-weight:850; }
+      .mBoxPct.neg .mBoxVal{ color:var(--mGreenText); font-weight:850; }
+
+      /* mobile notes 已經OK，沿用同 class */
+      .notes{
+        margin-top:12px;
+        border-radius:10px;
+        padding:12px 12px;
+        line-height:1.6;
+        font-size:13px;
+        box-shadow:none;
+      }
+      .notes::before{ margin-bottom:8px; }
     }
   </style>
 </head>
 
 <body>
-  <h2>處置股預測</h2>
-  <div id="status" class="muted">資料載入中…</div>
-  <div id="content"></div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"><span class="cm">CM</span><span class="oney">oney</span></div>
+      <div class="title">處置股票預測</div>
+    </div>
+    <div class="pill" id="updatedPill">更新時間：讀取中</div>
+  </div>
+
+  <div class="tabsWrap">
+    <div class="tabs" role="tablist" aria-label="sections">
+      <button class="tab active" data-page="soon" role="tab" aria-selected="true">
+        <span class="ico">⏳</span><span class="lbl">即將出關</span>
+        <span class="count" id="navSoon">0</span>
+      </button>
+
+      <button class="tab" data-page="disposed" role="tab" aria-selected="false">
+        <span class="ico">⛓️</span><span class="lbl">處置中</span>
+        <span class="count" id="navDisposed">0</span>
+      </button>
+
+      <button class="tab" data-page="up" role="tab" aria-selected="false">
+        <span class="ico">📈</span><span class="lbl">漲N%進處置</span>
+        <span class="count" id="navUp">0</span>
+      </button>
+
+      <button class="tab" data-page="down" role="tab" aria-selected="false">
+        <span class="ico">📉</span><span class="lbl">跌N%進處置</span>
+        <span class="count" id="navDown">0</span>
+      </button>
+
+      <button class="tab" data-page="fast" role="tab" aria-selected="false">
+        <span class="ico">⚡</span><span class="lbl">最快N日進處置</span>
+        <span class="count" id="navFast">0</span>
+      </button>
+    </div>
+  </div>
+
+  <section class="page active" id="page-soon">
+    <div class="card orange card--min-h-sm">
+      <div class="hd"><h3>即將出關</h3><span class="tag" id="tagSoon">0</span></div>
+      <div class="bd" id="tblSoon"><div class="loading">資料讀取中…</div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-disposed">
+    <div class="card orange card--min-h-sm">
+      <div class="hd"><h3>處置中股票</h3><span class="tag" id="tagDisposed">0</span></div>
+      <div class="bd" id="tblDisposed"><div class="loading">資料讀取中…</div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-up">
+    <div class="card red card--min-h-lg" id="cardUp">
+      <div class="hd"><h3 id="titleUp">漲N%進處置</h3><span class="tag" id="tagUp">0</span></div>
+      <div class="bd">
+        <div id="tblUp"><div class="loading">資料讀取中…</div></div>
+        <div id="noteUp" class="notes" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-down">
+    <div class="card green card--min-h-lg" id="cardDown">
+      <div class="hd"><h3 id="titleDown">跌N%進處置</h3><span class="tag" id="tagDown">0</span></div>
+      <div class="bd">
+        <div id="tblDown"><div class="loading">資料讀取中…</div></div>
+        <div id="noteDown" class="notes" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-fast">
+    <div class="card purple card--min-h-sm">
+      <div class="hd"><h3>最快N日進處置</h3><span class="tag" id="tagFast">0</span></div>
+      <div class="bd" id="tblFast"><div class="loading">資料讀取中…</div></div>
+    </div>
+  </section>
+
+  <div class="footer">© CMoney. All rights reserved.</div>
+</div>
 
 <script>
-/* ================================
- * Apps Script Web App（API 基底）
- * ================================ */
-const API_BASE =
-  "https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec";
+  /* =========================================================
+     ✅ GitHub Pages 版：改用 JSONP 從 Apps Script 取資料
+     ========================================================= */
+  const API_BASE = "https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec";
 
-/* ================================
- * 工具
- * ================================ */
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, c =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
-  );
-}
+  function loadAllDataJsonp(){
+    return new Promise((resolve, reject) => {
+      const cb = "cb_" + Math.random().toString(36).slice(2);
+      const script = document.createElement("script");
 
-function tableFrom(sheetObj){
-  if(!sheetObj) return "";
-  const { headers, rows, sheetName } = sheetObj;
-  if(!headers || !headers.length){
-    return `<div class="card muted">（${escapeHtml(sheetName)} 無資料）</div>`;
+      window[cb] = (data) => {
+        cleanup();
+        resolve(data);
+      };
+
+      function cleanup(){
+        try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
+        script.remove();
+      }
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("JSONP 載入失敗（API 無回應或被擋）"));
+      };
+
+      script.src = `${API_BASE}?api=1&callback=${cb}&_=${Date.now()}`;
+      document.body.appendChild(script);
+    });
   }
 
-  const head =
-    `<tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr>`;
+  function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+  function num(v){
+    const m=String(v??"").replace(/,/g,"").match(/-?[0-9]+(\.[0-9]+)?/);
+    return m?Number(m[0]):NaN;
+  }
+  function fmtDate(s){
+    const t = String(s??"").trim();
+    if(!t) return "";
+    if(/^\d{8}$/.test(t)) return `${t.slice(0,4)}/${t.slice(4,6)}/${t.slice(6,8)}`;
+    return t;
+  }
 
-  const body = (rows || []).map(r =>
-    `<tr>${headers.map(h=>`<td>${escapeHtml(r[h])}</td>`).join("")}</tr>`
-  ).join("");
+  function findKey(headers, kws, fallbackIndex){
+    const hs = headers || [];
+    for(const kw of kws){
+      const k = hs.find(h => String(h).replace(/\s/g,"").includes(kw));
+      if(k) return k;
+    }
+    return (fallbackIndex==null) ? null : (hs[fallbackIndex] || null);
+  }
 
-  return `
-    <div class="card">
-      <b>${escapeHtml(sheetName)}</b>
-      <div style="overflow:auto">
-        <table>${head}${body}</table>
+  function findCycleKey(headers, row){
+    const byHeader = (headers||[]).find(h => String(h).replace(/\s/g,"").includes("循環時間"));
+    if(byHeader) return byHeader;
+    const keys = Object.keys(row||{});
+    return keys.find(k => String(k).replace(/\s/g,"").includes("循環時間")) || null;
+  }
+
+  function hasTriggerFields(headers){
+    const hs = (headers||[]).map(h=>String(h).replace(/\s/g,""));
+    const hasPrice = hs.some(h => h.includes("觸發價"));
+    const hasPct   = hs.some(h => h.includes("觸發") && h.includes("%"));
+    return hasPrice || hasPct;
+  }
+
+  /* ===== 桌機資券：改成圓圈框（跟手機同感） ===== */
+  function buildZCCell(z, c){
+    const zOn = Number(z) === 1;
+    const cOn = Number(c) === 1;
+    return `
+      <span class="zcDesk">
+        <span class="zcRingDesk z ${zOn ? "on" : "off"}">資</span>
+        <span class="zcRingDesk c ${cOn ? "on" : "off"}">券</span>
+      </span>
+    `;
+  }
+
+  function mergeZCPack(pack){
+    if(!pack?.headers?.length) return pack;
+    const hasZ = pack.headers.includes("資");
+    const hasC = pack.headers.includes("券");
+    const hasZC = pack.headers.includes("資券");
+    if(hasZC) return pack;
+    if(!hasZ && !hasC) return pack;
+
+    const idxZ = hasZ ? pack.headers.indexOf("資") : 1e9;
+    const idxC = hasC ? pack.headers.indexOf("券") : 1e9;
+    const insertAt = Math.min(idxZ, idxC);
+
+    const newHeaders = pack.headers.filter(h => h !== "資" && h !== "券");
+    newHeaders.splice(Math.min(insertAt, newHeaders.length), 0, "資券");
+
+    const newRows = (pack.rows||[]).map(r=>{
+      const z = r["資"];
+      const c = r["券"];
+      return Object.assign({}, r, { "資券": buildZCCell(z, c), "__z": z, "__c": c });
+    });
+
+    return { headers:newHeaders, rows:newRows };
+  }
+
+  function cyclePillHTML(cycleVal){
+    const v = String(cycleVal ?? "").trim();
+    const n = num(v);
+    const warn = !isNaN(n) && n >= 20;
+    const stroke = warn ? '#ea580c' : '#9ca3af';
+    return `
+      <span class="mCycle ${warn ? 'warn' : ''}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12,6 12,12 16,14"></polyline>
+        </svg>
+        循環 ${esc(v || '—')} 分
+      </span>
+    `;
+  }
+
+  function zcRingsHTML(z, c){
+    const zOn = Number(z) === 1;
+    const cOn = Number(c) === 1;
+    return `
+      <div class="zcRow">
+        <span class="zcRing z ${zOn ? 'on' : 'off'}">資</span>
+        <span class="zcRing c ${cOn ? 'on' : 'off'}">券</span>
       </div>
-    </div>`;
-}
+    `;
+  }
 
-/* ================================
- * JSONP Loader（關鍵）
- * 不用 fetch、不吃 CORS、不怕手機
- * ================================ */
-function loadAllDataJsonp(){
-  return new Promise((resolve, reject) => {
-    const cb = "cb_" + Math.random().toString(36).slice(2);
-    const script = document.createElement("script");
+  /* ===== Mobile cards: Up/Down (with Z/C) ===== */
+  function renderMobileTriggerJSX(pack){
+    const headers = pack.headers || [];
+    const rows = pack.rows || [];
 
-    window[cb] = (data) => {
-      cleanup();
-      resolve(data);
-    };
+    const codeKey = findKey(headers, ["標的代號","股票代號","代號"], 0);
+    const nameKey = findKey(headers, ["標的名稱","股票名稱","名稱"], 1);
 
-    function cleanup(){
-      try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
-      script.remove();
+    const trigPriceKey = findKey(headers, ["觸發價","觸發價格"], null);
+    const trigPctKey =
+      (headers||[]).find(h => String(h).replace(/\s/g,"").includes("觸發") && String(h).includes("%"))
+      || findKey(headers, ["觸發漲幅","觸發跌幅"], null);
+
+    let html = `<div class="mCards">`;
+    rows.forEach(r=>{
+      const cycleKey = findCycleKey(headers, r);
+      const cycleVal = cycleKey ? r[cycleKey] : "";
+      const isWarn = num(cycleVal) >= 20;
+
+      const code = esc(String(r[codeKey] ?? "").trim());
+      const name = esc(String(r[nameKey] ?? "").trim());
+
+      const price = trigPriceKey ? String(r[trigPriceKey] ?? "").trim() : "";
+      const pct = trigPctKey ? String(r[trigPctKey] ?? "").trim() : "";
+
+      const pctNum = num(pct);
+      const isPositive = !isNaN(pctNum) && pctNum >= 0;
+
+      const z = (r["__z"]!=null) ? r["__z"] : r["資"];
+      const c = (r["__c"]!=null) ? r["__c"] : r["券"];
+
+      html += `
+        <div class="mCard ${isWarn ? "warn" : ""}">
+          <div class="mTop">
+            <div class="mId">
+              <div class="mCode">${code || "—"}</div>
+              <div class="mName">${name || ""}</div>
+            </div>
+
+            <div class="mRight">
+              ${cyclePillHTML(cycleVal)}
+              ${zcRingsHTML(z, c)}
+            </div>
+          </div>
+
+          <div class="mGrid">
+            <div class="mBox">
+              <div class="mBoxTitle">觸發價 (元)</div>
+              <div class="mBoxVal">${esc(price || "—")}</div>
+            </div>
+
+            <div class="mBox mBoxPct ${isPositive ? 'pos' : 'neg'}">
+              <div class="mBoxTitle">${esc(trigPctKey || "觸發漲幅 (%)")}</div>
+              <div class="mBoxVal">${esc(pct || "—")}${pct ? "%" : ""}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  /* ===== Mobile cards: Soon/Disposed (NO Z/C) ===== */
+  function renderMobilePeriodJSX(pack){
+    const headers = pack.headers || [];
+    const rows = pack.rows || [];
+
+    const codeKey  = findKey(headers, ["標的代號","股票代號","代號"], 0);
+    const nameKey  = findKey(headers, ["標的名稱","股票名稱","名稱"], 1);
+    const startKey = findKey(headers, ["處置時間起","處置起","時間起","起"], 2);
+    const endKey   = findKey(headers, ["處置時間迄","處置迄","時間迄","迄","到"], 3);
+
+    let html = `<div class="mCards">`;
+    rows.forEach(r=>{
+      const cycleKey = findCycleKey(headers, r);
+      const cycleVal = cycleKey ? r[cycleKey] : "";
+      const isWarn = num(cycleVal) >= 20;
+
+      const code = esc(String(r[codeKey] ?? "").trim());
+      const name = esc(String(r[nameKey] ?? "").trim());
+
+      const s = fmtDate(r[startKey]);
+      const e = fmtDate(r[endKey]);
+
+      html += `
+        <div class="mCard ${isWarn ? "warn" : ""}">
+          <div class="mTop">
+            <div class="mId">
+              <div class="mCode">${code || "—"}</div>
+              <div class="mName">${name || ""}</div>
+            </div>
+
+            <div class="mRight">
+              ${cyclePillHTML(cycleVal)}
+            </div>
+          </div>
+
+          <div class="mGrid">
+            <div class="mBox">
+              <div class="mBoxTitle">處置時間起</div>
+              <div class="mBoxVal date">${esc(s || "—")}</div>
+            </div>
+
+            <div class="mBox">
+              <div class="mBoxTitle">處置時間迄</div>
+              <div class="mBoxVal date">${esc(e || "—")}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  /* ===== main render (desktop table + mobile cards) ===== */
+  function render(el, pack, center=[], rawCols=[]){
+    if(!pack||!pack.headers||!pack.rows?.length){
+      el.innerHTML = `<div class="empty">沒有相關股票</div>`;
+      return;
     }
 
-    script.onerror = () => {
-      cleanup();
-      reject(new Error("JSONP 載入失敗"));
-    };
+    const cs=new Set(center);
+    const raw=new Set(rawCols);
 
-    script.src =
-      `${API_BASE}?api=1&callback=${cb}&_=${Date.now()}`;
-    document.body.appendChild(script);
-  });
-}
+    // Desktop table
+    let t=`<div class="deskTable"><table><thead><tr>`;
+    pack.headers.forEach(x=>t+=`<th class="${cs.has(x)?"center":""}">${esc(x)}</th>`);
+    t+=`</tr></thead><tbody>`;
 
-/* ================================
- * 主流程
- * ================================ */
-(async () => {
-  const status = document.getElementById("status");
-  const content = document.getElementById("content");
+    pack.rows.forEach(r=>{
+      const cycleKey = findCycleKey(pack.headers, r);
+      const cycleVal = cycleKey ? r[cycleKey] : undefined;
+      const isWarn = num(cycleVal) >= 20;
 
-  try{
-    const data = await loadAllDataJsonp();
+      t+=`<tr ${isWarn ? 'class="js-warning"' : ""}>`;
+      pack.headers.forEach(k=>{
+        const v = r[k];
+        const cell = raw.has(k) ? String(v??"") : esc(v);
+        t+=`<td class="${cs.has(k)?"center":""}">${cell}</td>`;
+      });
+      t+=`</tr>`;
+    });
 
-    status.textContent =
-      `交易日：${data.tradeDate || ""} ｜ 更新時間：` +
-      new Date(data.updatedAt).toLocaleString();
+    t+=`</tbody></table></div>`;
 
-    const d = data.data || {};
-
-    content.innerHTML =
-      tableFrom(d.soonRelease) +
-      tableFrom(d.disposed) +
-      tableFrom(d.up) +
-      `<div class="card"><b>漲說明</b><pre>${escapeHtml(d.upNote?.text)}</pre></div>` +
-      tableFrom(d.down) +
-      `<div class="card"><b>跌說明</b><pre>${escapeHtml(d.downNote?.text)}</pre></div>` +
-      tableFrom(d.fastestN);
-
-  }catch(err){
-    status.innerHTML =
-      `<span class="err">資料載入失敗：${escapeHtml(err.message)}</span>`;
+    // Mobile cards
+    const m = hasTriggerFields(pack.headers) ? renderMobileTriggerJSX(pack) : renderMobilePeriodJSX(pack);
+    el.innerHTML = t + m;
   }
-})();
+
+  /* ===== Fast page: original kanban only ===== */
+  function renderFast(el, pack){
+    if(!pack||!pack.headers||!pack.rows||!pack.rows.length){
+      el.innerHTML = '<div class="empty">沒有相關股票</div>';
+      return;
+    }
+    var fastKey = pack.headers.find(function(h){ return h.indexOf("最快")!==-1; }) || pack.headers[pack.headers.length-1];
+    var codeKey = pack.headers.find(function(h){ return h.indexOf("代號")!==-1; }) || pack.headers[0];
+    var nameKey = pack.headers.find(function(h){ return h.indexOf("名稱")!==-1; }) || pack.headers[1];
+
+    var groups = {};
+    var dayOrder = [];
+    pack.rows.forEach(function(r){
+      var d = String(r[fastKey]||"").trim() || "?";
+      if(!groups[d]){ groups[d]=[]; dayOrder.push(d); }
+      groups[d].push(r);
+    });
+    dayOrder.sort(function(a,b){ return (Number(a)||999)-(Number(b)||999); });
+
+    var html = '<div class="kanban">';
+    dayOrder.forEach(function(day){
+      var items = groups[day];
+      var n = Number(day)||999;
+      var lvl = n<=1?'urgent':n<=3?'soon':'normal';
+      html += '<div class="kanban__lane kanban__lane--'+lvl+'">';
+      html += '<div class="kanban__header">';
+      html += '<span>'+esc(day)+' 日</span>';
+      html += '<span class="kanban__badge">'+items.length+' 檔</span>';
+      html += '</div>';
+      html += '<div class="kanban__chips">';
+      items.forEach(function(r){
+        html += '<div class="kanban__chip">';
+        html += '<span class="kanban__chip-code">'+esc(String(r[codeKey]||""))+'</span>';
+        html += '<span class="kanban__chip-name">'+esc(String(r[nameKey]||""))+'</span>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  const PAGES = ["soon","disposed","up","down","fast"];
+  function setActive(page){
+    if(!PAGES.includes(page)) page="soon";
+
+    document.querySelectorAll(".tab").forEach(btn=>{
+      const on = btn.dataset.page === page;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
+    PAGES.forEach(p=>{
+      const el = document.getElementById("page-"+p);
+      if(el) el.classList.toggle("active", p===page);
+    });
+
+    if(location.hash !== "#"+page) history.replaceState(null,"","#"+page);
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click", ()=> setActive(btn.dataset.page));
+  });
+
+  function initFromHash(){
+    const h = (location.hash||"").replace("#","").trim();
+    setActive(PAGES.includes(h) ? h : "soon");
+  }
+  window.addEventListener("hashchange", initFromHash);
+
+  /* =========================================================
+     ✅ GitHub Pages 版 load(): 用 JSONP 取資料後沿用原渲染流程
+     ========================================================= */
+  async function load(){
+    try{
+      const res = await loadAllDataJsonp();
+
+      updatedPill.textContent = "更新時間：" + new Date(res.updatedAt).toLocaleString();
+
+      const d = fmtDate(res.tradeDate||"");
+      titleUp.textContent = d ? `漲N%進處置（${d}）` : "漲N%進處置";
+      titleDown.textContent = d ? `跌N%進處置（${d}）` : "跌N%進處置";
+
+      render(tblSoon, res.data.soonRelease);
+      render(tblDisposed, res.data.disposed);
+
+      renderFast(tblFast, res.data.fastestN);
+
+      const cSoon = res.data.soonRelease?.rows?.length ?? 0;
+      const cDisposed = res.data.disposed?.rows?.length ?? 0;
+      const cUp = res.data.up?.rows?.length ?? 0;
+      const cDown = res.data.down?.rows?.length ?? 0;
+      const cFast = res.data.fastestN?.rows?.length ?? 0;
+
+      tagSoon.textContent = `共${cSoon}檔`;
+      tagDisposed.textContent = `共${cDisposed}檔`;
+      tagUp.textContent = `共${cUp}檔`;
+      tagDown.textContent = `共${cDown}檔`;
+      tagFast.textContent = `共${cFast}檔`;
+
+      navSoon.textContent = `共${cSoon}檔`;
+      navDisposed.textContent = `共${cDisposed}檔`;
+      navUp.textContent = `共${cUp}檔`;
+      navDown.textContent = `共${cDown}檔`;
+      navFast.textContent = `共${cFast}檔`;
+
+      if(!cUp){
+        cardUp.style.display = "none";
+        if((location.hash||"") === "#up") setActive("soon");
+      }else{
+        cardUp.style.display = "flex";
+        const upPackMerged = mergeZCPack(res.data.up);
+        render(tblUp, upPackMerged, ["資券"], ["資券"]);
+        const txt = (res.data.upNote?.text || "").trim();
+        noteUp.textContent = txt;
+        noteUp.style.display = txt ? "block" : "none";
+      }
+
+      if(!cDown){
+        cardDown.style.display = "none";
+        if((location.hash||"") === "#down") setActive("soon");
+      }else{
+        cardDown.style.display = "flex";
+        const downPackMerged = mergeZCPack(res.data.down);
+        render(tblDown, downPackMerged, ["資券"], ["資券"]);
+        const txt = (res.data.downNote?.text || "").trim();
+        noteDown.textContent = txt;
+        noteDown.style.display = txt ? "block" : "none";
+      }
+
+    }catch(err){
+      console.error(err);
+      updatedPill.textContent = "更新時間：載入失敗";
+      // 也可以視覺提示
+      document.querySelectorAll(".loading").forEach(el=>{
+        el.textContent = "資料載入失敗，請稍後重試";
+      });
+    }
+  }
+
+  initFromHash();
+  load();
 </script>
 
 </body>
