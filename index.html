@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+  <meta charset="utf-8" />
   <base target="_top" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
@@ -271,7 +272,7 @@
     .card.green .hd{ background:linear-gradient(180deg,rgba(167,243,208,.9),rgba(209,250,229,.9)); }
     .card.purple .hd{ background:linear-gradient(180deg,rgba(196,181,253,.9),rgba(237,233,254,.9)); }
 
-    /* ===== kanban (fast page) - 保持原本，不改 ===== */
+    /* ===== kanban (fast page) - keep ===== */
     .kanban{ display:flex; flex-direction:column; gap:18px; }
     .kanban__lane{ border-radius:12px; padding:10px 14px 12px; }
     .kanban__lane--urgent{ background:rgba(196,181,253,.35); }
@@ -332,7 +333,7 @@
       letter-spacing:.2px;
     }
 
-    /* ===== 桌機版：說明區塊化（你要的） ===== */
+    /* Notes */
     .notes{
       margin-top:12px;
       background:var(--noteBg);
@@ -355,7 +356,7 @@
       letter-spacing:.2px;
     }
 
-    /* ===== 桌機版：資券改成手機同款圓圈框 ===== */
+    /* Desktop Z/C rings */
     .zcDesk{
       display:inline-flex;
       align-items:center;
@@ -391,7 +392,7 @@
       .title{ font-size:28px; }
     }
 
-    /* ===== Mobile cards (保持你現在OK的，不改) ===== */
+    /* ===== Mobile cards (keep) ===== */
     @media (max-width: 560px){
       .wrap{ padding:14px 12px 24px; }
       .topbar{ align-items:flex-start; margin-bottom:10px; gap:10px; }
@@ -556,7 +557,6 @@
       .mBoxPct.pos .mBoxVal{ color:var(--mRedText); font-weight:850; }
       .mBoxPct.neg .mBoxVal{ color:var(--mGreenText); font-weight:850; }
 
-      /* mobile notes 已經OK，沿用同 class */
       .notes{
         margin-top:12px;
         border-radius:10px;
@@ -578,7 +578,7 @@
       <div class="logo"><span class="cm">CM</span><span class="oney">oney</span></div>
       <div class="title">處置股票預測</div>
     </div>
-    <div class="pill" id="updatedPill">版本：20260204-C（測快取）</div>
+    <div class="pill" id="updatedPill">版本：20260204-D（data.json）</div>
   </div>
 
   <div class="tabsWrap">
@@ -656,48 +656,11 @@
 
 <script>
   /* =========================================================
-     ✅ GitHub Pages 版：改用 JSONP 從 Apps Script 取資料
+     ✅ GitHub Pages：讀同 repo 的 data.json（同網域，手機穩）
+     - 你用 Python 產出 data.json -> push 到 repo
+     - 前端只 fetch ./data.json
      ========================================================= */
-  const API_BASE = "https://script.google.com/a/macros/cmoney.com.tw/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec";
-
-function loadAllDataJsonp(){
-  return new Promise((resolve, reject) => {
-    const cb = "cb_" + Math.random().toString(36).slice(2);
-    const script = document.createElement("script");
-    let done = false;
-
-    const timer = setTimeout(() => fail("timeout"), 8000);
-
-    window[cb] = (data) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      resolve(data);
-    };
-
-    function cleanup(){
-      try { delete window[cb]; } catch(e) { window[cb] = undefined; }
-      script.remove();
-    }
-
-    function fail(reason){
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      cleanup();
-      reject(new Error(reason));
-    }
-
-    script.onerror = () => fail("script.onerror");
-
-    const url = `${API_BASE}?api=1&callback=${cb}&authuser=0&_=${Date.now()}`;
-    script.src = url;
-    document.body.appendChild(script);
-  });
-}
-
-
+  const DATA_PATH = "./data.json";
 
   function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
   function num(v){
@@ -734,7 +697,7 @@ function loadAllDataJsonp(){
     return hasPrice || hasPct;
   }
 
-  /* ===== 桌機資券：改成圓圈框（跟手機同感） ===== */
+  /* ===== 桌機資券：圓圈框 ===== */
   function buildZCCell(z, c){
     const zOn = Number(z) === 1;
     const cOn = Number(c) === 1;
@@ -923,7 +886,6 @@ function loadAllDataJsonp(){
     const cs=new Set(center);
     const raw=new Set(rawCols);
 
-    // Desktop table
     let t=`<div class="deskTable"><table><thead><tr>`;
     pack.headers.forEach(x=>t+=`<th class="${cs.has(x)?"center":""}">${esc(x)}</th>`);
     t+=`</tr></thead><tbody>`;
@@ -944,12 +906,11 @@ function loadAllDataJsonp(){
 
     t+=`</tbody></table></div>`;
 
-    // Mobile cards
     const m = hasTriggerFields(pack.headers) ? renderMobileTriggerJSX(pack) : renderMobilePeriodJSX(pack);
     el.innerHTML = t + m;
   }
 
-  /* ===== Fast page: original kanban only ===== */
+  /* ===== Fast page: kanban ===== */
   function renderFast(el, pack){
     if(!pack||!pack.headers||!pack.rows||!pack.rows.length){
       el.innerHTML = '<div class="empty">沒有相關股票</div>';
@@ -1021,47 +982,49 @@ function loadAllDataJsonp(){
   window.addEventListener("hashchange", initFromHash);
 
   // ✅ iOS / mobile 兼容：不要依賴「id 自動變全域變數」
-const updatedPill = document.getElementById("updatedPill");
-const titleUp = document.getElementById("titleUp");
-const titleDown = document.getElementById("titleDown");
+  const updatedPill = document.getElementById("updatedPill");
+  const titleUp = document.getElementById("titleUp");
+  const titleDown = document.getElementById("titleDown");
 
-const tblSoon = document.getElementById("tblSoon");
-const tblDisposed = document.getElementById("tblDisposed");
-const tblUp = document.getElementById("tblUp");
-const tblDown = document.getElementById("tblDown");
-const tblFast = document.getElementById("tblFast");
+  const tblSoon = document.getElementById("tblSoon");
+  const tblDisposed = document.getElementById("tblDisposed");
+  const tblUp = document.getElementById("tblUp");
+  const tblDown = document.getElementById("tblDown");
+  const tblFast = document.getElementById("tblFast");
 
-const noteUp = document.getElementById("noteUp");
-const noteDown = document.getElementById("noteDown");
+  const noteUp = document.getElementById("noteUp");
+  const noteDown = document.getElementById("noteDown");
 
-const cardUp = document.getElementById("cardUp");
-const cardDown = document.getElementById("cardDown");
+  const cardUp = document.getElementById("cardUp");
+  const cardDown = document.getElementById("cardDown");
 
-const tagSoon = document.getElementById("tagSoon");
-const tagDisposed = document.getElementById("tagDisposed");
-const tagUp = document.getElementById("tagUp");
-const tagDown = document.getElementById("tagDown");
-const tagFast = document.getElementById("tagFast");
+  const tagSoon = document.getElementById("tagSoon");
+  const tagDisposed = document.getElementById("tagDisposed");
+  const tagUp = document.getElementById("tagUp");
+  const tagDown = document.getElementById("tagDown");
+  const tagFast = document.getElementById("tagFast");
 
-const navSoon = document.getElementById("navSoon");
-const navDisposed = document.getElementById("navDisposed");
-const navUp = document.getElementById("navUp");
-const navDown = document.getElementById("navDown");
-const navFast = document.getElementById("navFast");
+  const navSoon = document.getElementById("navSoon");
+  const navDisposed = document.getElementById("navDisposed");
+  const navUp = document.getElementById("navUp");
+  const navDown = document.getElementById("navDown");
+  const navFast = document.getElementById("navFast");
 
-window.addEventListener("error", (e) => {
-  try {
-    updatedPill.textContent = "更新時間：JS錯誤（手機）";
-  } catch(_) {}
-  console.error(e?.error || e?.message || e);
-});
+  window.addEventListener("error", (e) => {
+    try { updatedPill.textContent = "更新時間：JS錯誤（手機）"; } catch(_) {}
+    console.error(e?.error || e?.message || e);
+  });
 
-  /* =========================================================
-     ✅ GitHub Pages 版 load(): 用 JSONP 取資料後沿用原渲染流程
-     ========================================================= */
+  async function loadAllDataFromJson(){
+    const url = `${DATA_PATH}?v=${Date.now()}`; // bust cache
+    const r = await fetch(url, { cache: "no-store" });
+    if(!r.ok) throw new Error(`fetch ${DATA_PATH} HTTP ${r.status}`);
+    return await r.json();
+  }
+
   async function load(){
     try{
-      const res = await loadAllDataJsonp();
+      const res = await loadAllDataFromJson();
 
       updatedPill.textContent = "更新時間：" + new Date(res.updatedAt).toLocaleString();
 
