@@ -1129,10 +1129,10 @@ window.addEventListener("error", (e) => {
 
     }catch(err){
       console.error(err);
-      updatedPill.textContent = "更新時間：載入失敗";
-      // 也可以視覺提示
+      const msg = (err && err.message) ? err.message : String(err);
+      updatedPill.textContent = "載入失敗：" + msg;
       document.querySelectorAll(".loading").forEach(el=>{
-        el.textContent = "資料載入失敗，請稍後重試";
+        el.textContent = "資料載入失敗：" + msg;
       });
     }
   }
