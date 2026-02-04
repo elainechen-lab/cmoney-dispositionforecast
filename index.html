@@ -661,14 +661,11 @@
   const API_BASE = "https://script.google.com/a/macros/cmoney.com.tw/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec";
 
 function loadAllDataJsonp(){
-  const pill = document.getElementById("updatedPill");
-
   return new Promise((resolve, reject) => {
     const cb = "cb_" + Math.random().toString(36).slice(2);
     const script = document.createElement("script");
     let done = false;
 
-    // 8 秒沒回來就當失敗
     const timer = setTimeout(() => fail("timeout"), 8000);
 
     window[cb] = (data) => {
@@ -689,25 +686,17 @@ function loadAllDataJsonp(){
       done = true;
       clearTimeout(timer);
       cleanup();
-
-      // ✅ 把原因 + URL 印在 pill，方便你回報我
-      if (pill) pill.textContent = `JSONP失敗：${reason}`;
       reject(new Error(reason));
     }
 
     script.onerror = () => fail("script.onerror");
 
-    const url =
-      `${API_BASE}?api=1&callback=${cb}&authuser=0&_=${Date.now()}`;
-
-    if (pill) pill.textContent = `載入中…(JSONP)`;
-    // ✅ 把 URL 印出來（你可以複製貼給我）
-    console.log("JSONP URL:", url);
-
+    const url = `${API_BASE}?api=1&callback=${cb}&authuser=0&_=${Date.now()}`;
     script.src = url;
     document.body.appendChild(script);
   });
 }
+
 
 
   function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
