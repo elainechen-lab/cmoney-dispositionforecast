@@ -3,23 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- 立即跳轉（主力） -->
-  <script>
-    window.location.replace(
-      "https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec"
-    );
-  </script>
-
-  <!-- JS 被擋時的備援 -->
-  <meta http-equiv="refresh"
-        content="0; url=https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec">
+  <title>CMoney處置股票預測</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;padding:16px;line-height:1.5}
+    .muted{opacity:.7}
+    .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin:12px 0}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left;vertical-align:top}
+    th{background:#fafafa}
+    .err{color:#b00020}
+  </style>
 </head>
 <body>
-  正在前往頁面…  
-  若未自動跳轉，請點：
-  <a href="https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec">
-    開啟處置股預測
-  </a>
+  <h2>處置股預測</h2>
+  <div id="status" class="muted">載入資料中…</div>
+  <div id="content"></div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyK4c878VDnAZXu2swJgPVs5lfRGYmFC-6Fm9ZwRpIC12WWimcctNN8mYOLu1dipEC4/exec?api=1";
+
+function tableFrom(sheetObj){
+  const { headers, rows, sheetName } = sheetObj;
+  if(!headers?.length) return `<div class="muted">（${sheetName} 沒有資料）</div>`;
+  const head = `<tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr>`;
+  const body = rows.slice(0,200).map(r=>{
+    return `<tr>${headers.map(h=>`<td>${escapeHtml(r[h] ?? "")}</td>`).join("")}</tr>`;
+  }).join("");
+  return `<div class="card"><div><b>${escapeHtml(sheetName)}</b></div><div style="overflow:auto"><table>${head}${body}</table></div></div>`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+(async () => {
+  const status = document.getElementById("status");
+  const content = document.getElementById("content");
+  try{
+    const res = await fetch(API_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    status.textContent = `更新時間：${data.tradeDate || ""}（${new Date(data.updatedAt).toLocaleString()}）`;
+
+    const d = data.data || {};
+    content.innerHTML =
+      tableFrom(d.soonRelease) +
+      tableFrom(d.disposed) +
+      tableFrom(d.up) +
+      `<div class="card"><b>漲說明</b><pre>${escapeHtml(d.upNote?.text || "")}</pre></div>` +
+      tableFrom(d.down) +
+      `<div class="card"><b>跌說明</b><pre>${escapeHtml(d.downNote?.text || "")}</pre></div>` +
+      tableFrom(d.fastestN);
+
+  }catch(err){
+    status.innerHTML = `<span class="err">載入失敗：${escapeHtml(err.message)}。請稍後重試。</span>`;
+  }
+})();
+</script>
 </body>
 </html>
