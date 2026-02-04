@@ -1006,6 +1006,42 @@
   }
   window.addEventListener("hashchange", initFromHash);
 
+  // ✅ iOS / mobile 兼容：不要依賴「id 自動變全域變數」
+const updatedPill = document.getElementById("updatedPill");
+const titleUp = document.getElementById("titleUp");
+const titleDown = document.getElementById("titleDown");
+
+const tblSoon = document.getElementById("tblSoon");
+const tblDisposed = document.getElementById("tblDisposed");
+const tblUp = document.getElementById("tblUp");
+const tblDown = document.getElementById("tblDown");
+const tblFast = document.getElementById("tblFast");
+
+const noteUp = document.getElementById("noteUp");
+const noteDown = document.getElementById("noteDown");
+
+const cardUp = document.getElementById("cardUp");
+const cardDown = document.getElementById("cardDown");
+
+const tagSoon = document.getElementById("tagSoon");
+const tagDisposed = document.getElementById("tagDisposed");
+const tagUp = document.getElementById("tagUp");
+const tagDown = document.getElementById("tagDown");
+const tagFast = document.getElementById("tagFast");
+
+const navSoon = document.getElementById("navSoon");
+const navDisposed = document.getElementById("navDisposed");
+const navUp = document.getElementById("navUp");
+const navDown = document.getElementById("navDown");
+const navFast = document.getElementById("navFast");
+
+window.addEventListener("error", (e) => {
+  try {
+    updatedPill.textContent = "更新時間：JS錯誤（手機）";
+  } catch(_) {}
+  console.error(e?.error || e?.message || e);
+});
+
   /* =========================================================
      ✅ GitHub Pages 版 load(): 用 JSONP 取資料後沿用原渲染流程
      ========================================================= */
