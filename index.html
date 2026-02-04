@@ -733,6 +733,33 @@
     return { headers:newHeaders, rows:newRows };
   }
 
+ function mergeFinanceColumnsForDesk(pack){
+  if (!pack?.headers || !pack.rows) return pack;
+
+  const hasZ = pack.headers.includes("融資資格");
+  const hasC = pack.headers.includes("融券資格");
+  if (!hasZ || !hasC) return pack;
+
+  // 新 headers：移除原本兩欄，插入「融資券資格」
+  const newHeaders = pack.headers.filter(
+    h => h !== "融資資格" && h !== "融券資格"
+  );
+  newHeaders.push("融資券資格");
+
+  const newRows = pack.rows.map(r => {
+    return {
+      ...r,
+      "融資券資格": buildZCCell(r["融資資格"], r["融券資格"])
+    };
+  });
+
+  return {
+    ...pack,
+    headers: newHeaders,
+    rows: newRows
+  };
+}
+ 
   function cyclePillHTML(cycleVal){
     const v = String(cycleVal ?? "").trim();
     const n = num(v);
@@ -1060,8 +1087,8 @@
         if((location.hash||"") === "#up") setActive("soon");
       }else{
         cardUp.style.display = "flex";
-        const upPackMerged = mergeZCPack(res.data.up);
-        render(tblUp, upPackMerged, ["資券"], ["資券"]);
+        const upPackMerged = mergeFinanceColumnsForDesk(res.data.up);
+        render(tblUp, upPackMerged, ["融資券資格"], ["融資券資格"]);
         const txt = (res.data.upNote?.text || "").trim();
         noteUp.textContent = txt;
         noteUp.style.display = txt ? "block" : "none";
@@ -1072,8 +1099,8 @@
         if((location.hash||"") === "#down") setActive("soon");
       }else{
         cardDown.style.display = "flex";
-        const downPackMerged = mergeZCPack(res.data.down);
-        render(tblDown, downPackMerged, ["資券"], ["資券"]);
+        const downPackMerged = mergeFinanceColumnsForDesk(res.data.down);
+        render(tblDown, downPackMerged, ["融資券資格"], ["融資券資格"]);
         const txt = (res.data.downNote?.text || "").trim();
         noteDown.textContent = txt;
         noteDown.style.display = txt ? "block" : "none";
