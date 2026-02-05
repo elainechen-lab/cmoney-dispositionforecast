@@ -557,7 +557,7 @@
     /* ===== ✅ 注意事項展開文字：文字內容1 粗體 + 條款前空一行 ===== */
     .accBody .t1{ font-weight:950; }
     .accBody .gap{ height:10px; }
-    .accBody .clause{ font-weight:900; }
+    .accBody .clause{ font-weight:400; }
 
     /* ===== Mobile cards ===== */
     @media (max-width: 560px){
@@ -926,7 +926,7 @@
     html += `<div class="clause">*${esc(FORCED_CLAUSE)}</div>`;
 
     if(b){
-      html += `<div style="margin-top:10px;">${esc(b)}</div>`;
+      html += `<div class="t2">${esc(b)}</div>`;
     }
     if(c){
       html += `<div style="margin-top:10px;">${esc(c)}</div>`;
