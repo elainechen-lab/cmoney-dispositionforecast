@@ -333,7 +333,7 @@
       letter-spacing:.2px;
     }
 
-    /* Notes */
+    /* Notes (old bottom note blocks keep, but Up/Down will use accordion per card) */
     .notes{
       margin-top:12px;
       background:var(--noteBg);
@@ -392,6 +392,131 @@
       .title{ font-size:28px; }
     }
 
+    /* ===============================
+       ✅ Up/Down Desktop cards ONLY
+       (不影響：即將出關 / 處置中 / 最快N日)
+       =============================== */
+    .udDesk{ display:block; }
+    .udGrid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+    }
+    @media (max-width: 860px){
+      .udGrid{ grid-template-columns:1fr; }
+    }
+
+    .udCard{
+      background:var(--mCardBg);
+      border-radius:14px;
+      padding:16px;
+      border:1px solid var(--mCardBorder);
+      box-shadow:var(--mCardShadow);
+    }
+    .udCard.warn{
+      border-color: rgba(234,88,12,.35);
+      box-shadow: 0 1px 4px rgba(234,88,12,0.10);
+    }
+    .udTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .udId{ min-width:0; }
+    .udCode{
+      font-family:"JetBrains Mono", monospace;
+      font-size:24px;
+      font-weight:700;
+      color:#1a1a1a;
+      line-height:1;
+    }
+    .udName{
+      font-size:14px;
+      color:#666;
+      margin-top:4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .udRight{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .udGrid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .udBox{
+      background:var(--mSubtle);
+      border-radius:8px;
+      padding:12px 14px;
+      min-width:0;
+    }
+    .udBoxTitle{
+      font-size:12px;
+      color:#999;
+      margin-bottom:6px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .udBoxVal{
+      font-family:"JetBrains Mono", monospace;
+      font-size:20px;
+      font-weight:650;
+      color:#1a1a1a;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .udBoxPct.pos{ background:var(--mRedBg); }
+    .udBoxPct.neg{ background:var(--mGreenBg); }
+    .udBoxPct.pos .udBoxVal{ color:var(--mRedText); font-weight:850; }
+    .udBoxPct.neg .udBoxVal{ color:var(--mGreenText); font-weight:850; }
+
+    /* Accordion button/body (Up/Down cards only) */
+    .accBtn{
+      margin-top:12px;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:10px;
+      background:var(--noteBg);
+      border:1px solid var(--noteBorder);
+      color:var(--noteTitle);
+      font-weight:950;
+      cursor:pointer;
+      user-select:none;
+    }
+    .accBtn .accHint{
+      font-weight:800;
+      font-size:12px;
+      color:rgba(146,64,14,.85);
+    }
+    .accBody{
+      display:none;
+      margin-top:10px;
+      background:var(--noteBg);
+      border:1px solid var(--noteBorder);
+      border-radius:10px;
+      padding:12px 12px;
+      white-space:pre-wrap;
+      line-height:1.6;
+      font-size:13px;
+      color:var(--noteText);
+    }
+    .udCard.open .accBody{ display:block; }
+    .mCard.open .accBody{ display:block; } /* mobile cards accordion */
+
     /* ===== Mobile cards (keep) ===== */
     @media (max-width: 560px){
       .wrap{ padding:14px 12px 24px; }
@@ -426,6 +551,7 @@
       .hd h3{ padding:0 62px; font-size:15px; }
 
       .deskTable{ display:none; }
+      .udDesk{ display:none; } /* ✅ mobile 只顯示原本 mCards 風格 */
       .mCards{ display:flex; flex-direction:column; gap:12px; }
 
       .mCard{
@@ -594,12 +720,12 @@
       </button>
 
       <button class="tab" data-page="up" role="tab" aria-selected="false">
-        <span class="ico">🚨</span><span class="lbl">漲N%進處置</span>
+        <span class="ico">📈</span><span class="lbl">漲N%進處置</span>
         <span class="count" id="navUp">0</span>
       </button>
 
       <button class="tab" data-page="down" role="tab" aria-selected="false">
-        <span class="ico">🔔</span><span class="lbl">跌N%進處置</span>
+        <span class="ico">📉</span><span class="lbl">跌N%進處置</span>
         <span class="count" id="navDown">0</span>
       </button>
 
@@ -629,6 +755,7 @@
       <div class="hd"><h3 id="titleUp">漲N%進處置</h3><span class="tag" id="tagUp">0</span></div>
       <div class="bd">
         <div id="tblUp"><div class="loading">資料讀取中…</div></div>
+        <!-- 保留但不再使用（改成每股卡片內手風琴） -->
         <div id="noteUp" class="notes" style="display:none"></div>
       </div>
     </div>
@@ -639,6 +766,7 @@
       <div class="hd"><h3 id="titleDown">跌N%進處置</h3><span class="tag" id="tagDown">0</span></div>
       <div class="bd">
         <div id="tblDown"><div class="loading">資料讀取中…</div></div>
+        <!-- 保留但不再使用（改成每股卡片內手風琴） -->
         <div id="noteDown" class="notes" style="display:none"></div>
       </div>
     </div>
@@ -657,8 +785,6 @@
 <script>
   /* =========================================================
      ✅ GitHub Pages：讀同 repo 的 data.json（同網域，手機穩）
-     - 你用 Python 產出 data.json -> push 到 repo
-     - 前端只 fetch ./data.json
      ========================================================= */
   const DATA_PATH = "./data.json";
 
@@ -733,33 +859,33 @@
     return { headers:newHeaders, rows:newRows };
   }
 
- function mergeFinanceColumnsForDesk(pack){
-  if (!pack?.headers || !pack.rows) return pack;
+  function mergeFinanceColumnsForDesk(pack){
+    if (!pack?.headers || !pack.rows) return pack;
 
-  const hasZ = pack.headers.includes("融資資格");
-  const hasC = pack.headers.includes("融券資格");
-  if (!hasZ || !hasC) return pack;
+    const hasZ = pack.headers.includes("融資資格");
+    const hasC = pack.headers.includes("融券資格");
+    if (!hasZ || !hasC) return pack;
 
-  // 新 headers：移除原本兩欄，插入「融資券資格」
-  const newHeaders = pack.headers.filter(
-    h => h !== "融資資格" && h !== "融券資格"
-  );
-  newHeaders.push("融資券資格");
+    // 新 headers：移除原本兩欄，插入「融資券資格」
+    const newHeaders = pack.headers.filter(
+      h => h !== "融資資格" && h !== "融券資格"
+    );
+    newHeaders.push("融資券資格");
 
-  const newRows = pack.rows.map(r => {
+    const newRows = pack.rows.map(r => {
+      return {
+        ...r,
+        "融資券資格": buildZCCell(r["融資資格"], r["融券資格"])
+      };
+    });
+
     return {
-      ...r,
-      "融資券資格": buildZCCell(r["融資資格"], r["融券資格"])
+      ...pack,
+      headers: newHeaders,
+      rows: newRows
     };
-  });
+  }
 
-  return {
-    ...pack,
-    headers: newHeaders,
-    rows: newRows
-  };
-}
- 
   function cyclePillHTML(cycleVal){
     const v = String(cycleVal ?? "").trim();
     const n = num(v);
@@ -787,7 +913,62 @@
     `;
   }
 
-  /* ===== Mobile cards: Up/Down (with Z/C) ===== */
+  /* ===============================
+     ✅ 注意事項：三欄位 + 強制條款
+     =============================== */
+  const FORCED_CLAUSE = "處置股票條款中有類股相關條款：其六日漲跌百分比與全體有價證券及同類有價證券依本項規定計算之平均值的差幅均在百分之二十以上，才符合條款。";
+
+  function getNoteKeys(headers){
+    const hs = headers || [];
+    const k1 = hs.find(h => String(h).replace(/\s/g,"").includes("文字內容1")) || null;
+    const k2 = hs.find(h => String(h).replace(/\s/g,"").includes("文字內容2")) || null;
+    const k3 = hs.find(h => String(h).replace(/\s/g,"").includes("補充說明")) || null;
+    return {k1,k2,k3};
+  }
+
+  function cleanText(v){
+    const s = String(v ?? "").trim();
+    if(!s) return "";
+    if(s.toLowerCase() === "null") return "";
+    return s;
+  }
+
+  function buildNoteText(t1, t2, t3){
+    const a = cleanText(t1);
+    const b = cleanText(t2);
+    const c = cleanText(t3);
+
+    // 只要三者任一有內容才顯示
+    if(!a && !b && !c) return "";
+
+    // 你指定的呈現順序：
+    // 【注意事項】
+    // 文字內容1
+    // (換行) + 強制條款
+    // 文字內容2
+    // 補充說明(若有)
+    let lines = [];
+    lines.push("【注意事項】");
+    if(a) lines.push(a);
+    lines.push("**" + FORCED_CLAUSE);
+    if(b) lines.push(b);
+    if(c) lines.push(c);
+    return lines.join("\n");
+  }
+
+  function accHTML(noteText){
+    if(!noteText) return "";
+    // accHint 只是小提示，不改你整體色系
+    return `
+      <button class="accBtn" type="button" data-acc="toggle">
+        <span>注意事項</span>
+        <span class="accHint">點一下展開</span>
+      </button>
+      <div class="accBody">${esc(noteText)}</div>
+    `;
+  }
+
+  /* ===== Mobile cards: Up/Down (with Z/C + accordion) ===== */
   function renderMobileTriggerJSX(pack){
     const headers = pack.headers || [];
     const rows = pack.rows || [];
@@ -800,8 +981,10 @@
       (headers||[]).find(h => String(h).replace(/\s/g,"").includes("觸發") && String(h).includes("%"))
       || findKey(headers, ["觸發漲幅","觸發跌幅"], null);
 
+    const {k1,k2,k3} = getNoteKeys(headers);
+
     let html = `<div class="mCards">`;
-    rows.forEach(r=>{
+    rows.forEach((r, idx)=>{
       const cycleKey = findCycleKey(headers, r);
       const cycleVal = cycleKey ? r[cycleKey] : "";
       const isWarn = num(cycleVal) >= 20;
@@ -818,8 +1001,16 @@
       const z = (r["__z"]!=null) ? r["__z"] : r["資"];
       const c = (r["__c"]!=null) ? r["__c"] : r["券"];
 
+      const noteText = buildNoteText(
+        k1 ? r[k1] : "",
+        k2 ? r[k2] : "",
+        k3 ? r[k3] : ""
+      );
+
+      const hasAcc = !!noteText;
+
       html += `
-        <div class="mCard ${isWarn ? "warn" : ""}">
+        <div class="mCard ${isWarn ? "warn" : ""}" ${hasAcc ? `data-acc-item="1"` : ""}>
           <div class="mTop">
             <div class="mId">
               <div class="mCode">${code || "—"}</div>
@@ -843,6 +1034,8 @@
               <div class="mBoxVal">${esc(pct || "—")}${pct ? "%" : ""}</div>
             </div>
           </div>
+
+          ${hasAcc ? accHTML(noteText) : ""}
         </div>
       `;
     });
@@ -935,6 +1128,95 @@
 
     const m = hasTriggerFields(pack.headers) ? renderMobileTriggerJSX(pack) : renderMobilePeriodJSX(pack);
     el.innerHTML = t + m;
+  }
+
+  /* ===============================
+     ✅ Up/Down：桌機改成「左右兩張卡」
+     (手機維持原卡片 + 手風琴)
+     =============================== */
+  function renderUpDownSection(el, pack){
+    if(!pack||!pack.headers||!pack.rows?.length){
+      el.innerHTML = `<div class="empty">沒有相關股票</div>`;
+      return;
+    }
+
+    const headers = pack.headers || [];
+    const rows = pack.rows || [];
+
+    const codeKey = findKey(headers, ["標的代號","股票代號","代號"], 0);
+    const nameKey = findKey(headers, ["標的名稱","股票名稱","名稱"], 1);
+
+    const trigPriceKey = findKey(headers, ["觸發價","觸發價格"], null);
+    const trigPctKey =
+      (headers||[]).find(h => String(h).replace(/\s/g,"").includes("觸發") && String(h).includes("%"))
+      || findKey(headers, ["觸發漲幅","觸發跌幅"], null);
+
+    const {k1,k2,k3} = getNoteKeys(headers);
+
+    // ✅ 桌機卡片（兩欄）
+    let desk = `<div class="udDesk"><div class="udGrid">`;
+    rows.forEach((r, idx)=>{
+      const cycleKey = findCycleKey(headers, r);
+      const cycleVal = cycleKey ? r[cycleKey] : "";
+      const isWarn = num(cycleVal) >= 20;
+
+      const code = esc(String(r[codeKey] ?? "").trim());
+      const name = esc(String(r[nameKey] ?? "").trim());
+
+      const price = trigPriceKey ? String(r[trigPriceKey] ?? "").trim() : "";
+      const pct = trigPctKey ? String(r[trigPctKey] ?? "").trim() : "";
+
+      const pctNum = num(pct);
+      const isPositive = !isNaN(pctNum) && pctNum >= 0;
+
+      const z = (r["__z"]!=null) ? r["__z"] : r["資"];
+      const c = (r["__c"]!=null) ? r["__c"] : r["券"];
+
+      const noteText = buildNoteText(
+        k1 ? r[k1] : "",
+        k2 ? r[k2] : "",
+        k3 ? r[k3] : ""
+      );
+
+      const hasAcc = !!noteText;
+
+      desk += `
+        <div class="udCard ${isWarn ? "warn" : ""}" ${hasAcc ? `data-acc-item="1"` : ""}>
+          <div class="udTop">
+            <div class="udId">
+              <div class="udCode">${code || "—"}</div>
+              <div class="udName">${name || ""}</div>
+            </div>
+
+            <div class="udRight">
+              ${cyclePillHTML(cycleVal)}
+              ${zcRingsHTML(z, c)}
+            </div>
+          </div>
+
+          <div class="udGrid2">
+            <div class="udBox">
+              <div class="udBoxTitle">觸發價 (元)</div>
+              <div class="udBoxVal">${esc(price || "—")}</div>
+            </div>
+
+            <div class="udBox udBoxPct ${isPositive ? "pos" : "neg"}">
+              <div class="udBoxTitle">${esc(trigPctKey || "觸發漲幅 (%)")}</div>
+              <div class="udBoxVal">${esc(pct || "—")}${pct ? "%" : ""}</div>
+            </div>
+          </div>
+
+          ${hasAcc ? accHTML(noteText) : ""}
+        </div>
+      `;
+    });
+    desk += `</div></div>`;
+
+    // ✅ 手機卡片（維持原 mCards 風格 + 手風琴）
+    const mobile = renderMobileTriggerJSX(pack);
+
+    // ✅ 合併輸出：桌機看 desk、手機看 mobile（透過 CSS 控制顯示）
+    el.innerHTML = desk + mobile;
   }
 
   /* ===== Fast page: kanban ===== */
@@ -1049,6 +1331,18 @@
     return await r.json();
   }
 
+  function bindAccordions(root){
+    if(!root) return;
+    // 事件委派：只處理 data-acc="toggle"
+    root.addEventListener("click", (ev)=>{
+      const btn = ev.target?.closest?.('[data-acc="toggle"]');
+      if(!btn) return;
+      const card = btn.closest(".udCard, .mCard");
+      if(!card) return;
+      card.classList.toggle("open");
+    });
+  }
+
   async function load(){
     try{
       const res = await loadAllDataFromJson();
@@ -1059,9 +1353,9 @@
       titleUp.textContent = d ? `漲N% ${d} 進處置` : "漲N%進處置";
       titleDown.textContent = d ? `跌N% ${d} 進處置` : "跌N%進處置";
 
+      // ✅ 其他專區完全不動：沿用原 render / renderFast
       render(tblSoon, res.data.soonRelease);
       render(tblDisposed, res.data.disposed);
-
       renderFast(tblFast, res.data.fastestN);
 
       const cSoon = res.data.soonRelease?.rows?.length ?? 0;
@@ -1082,43 +1376,50 @@
       navDown.textContent = `共${cDown}檔`;
       navFast.textContent = `共${cFast}檔`;
 
+      // Up
       if(!cUp){
         cardUp.style.display = "none";
         if((location.hash||"") === "#up") setActive("soon");
       }else{
         cardUp.style.display = "flex";
         const upPackMerged = mergeFinanceColumnsForDesk(res.data.up);
-        render(tblUp, upPackMerged, ["融資券資格"], ["融資券資格"]);
-        const txt = (res.data.upNote?.text || "").trim();
-        noteUp.textContent = txt;
-        noteUp.style.display = txt ? "block" : "none";
+        // ✅ 只改 Up/Down：桌機卡片兩欄 + 手機維持原卡片
+        renderUpDownSection(tblUp, upPackMerged);
       }
 
+      // Down
       if(!cDown){
         cardDown.style.display = "none";
         if((location.hash||"") === "#down") setActive("soon");
       }else{
         cardDown.style.display = "flex";
         const downPackMerged = mergeFinanceColumnsForDesk(res.data.down);
-        render(tblDown, downPackMerged, ["融資券資格"], ["融資券資格"]);
-        const txt = (res.data.downNote?.text || "").trim();
-        noteDown.textContent = txt;
-        noteDown.style.display = txt ? "block" : "none";
+        renderUpDownSection(tblDown, downPackMerged);
       }
 
+      // ✅ 不再使用底部 note 區塊
+      if(noteUp) noteUp.style.display = "none";
+      if(noteDown) noteDown.style.display = "none";
+
+      // ✅ 綁定手風琴（Up/Down 卡片內）
+      bindAccordions(tblUp);
+      bindAccordions(tblDown);
+
+      // init page
+      initFromHash();
     }catch(err){
       console.error(err);
-      const msg = (err && err.message) ? err.message : String(err);
-      updatedPill.textContent = "載入失敗：" + msg;
-      document.querySelectorAll(".loading").forEach(el=>{
-        el.textContent = "資料載入失敗：" + msg;
-      });
+      updatedPill.textContent = "更新時間：讀取失敗";
+      tblSoon.innerHTML = `<div class="empty">讀取 data.json 失敗</div>`;
+      tblDisposed.innerHTML = `<div class="empty">讀取 data.json 失敗</div>`;
+      tblUp.innerHTML = `<div class="empty">讀取 data.json 失敗</div>`;
+      tblDown.innerHTML = `<div class="empty">讀取 data.json 失敗</div>`;
+      tblFast.innerHTML = `<div class="empty">讀取 data.json 失敗</div>`;
+      initFromHash();
     }
   }
 
-  initFromHash();
   load();
 </script>
-
 </body>
 </html>
