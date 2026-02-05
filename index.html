@@ -509,7 +509,6 @@
       border:1px solid var(--noteBorder);
       border-radius:10px;
       padding:12px 12px;
-      white-space:pre-wrap;
       line-height:1.6;
       font-size:13px;
       color:var(--noteText);
@@ -517,7 +516,50 @@
     .udCard.open .accBody{ display:block; }
     .mCard.open .accBody{ display:block; } /* mobile cards accordion */
 
-    /* ===== Mobile cards (keep) ===== */
+    /* ===== ✅ 你要求的改動：桌機 Up/Down 右上循環框框樣式 + 資券圈圈（跟手機一致） ===== */
+    /* 這些 class 會被桌機 Up/Down 用到，但不會影響其他專區 */
+    .mCycle{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+      border:1px solid #e5e7eb;
+      background:var(--mSubtle2);
+      color:#888;
+    }
+    .mCycle.warn{
+      background:var(--mCycleWarnBg);
+      color:var(--mCycleWarnText);
+      border-color:var(--mCycleWarnBorder);
+    }
+    .zcRow{ display:flex; gap:8px; }
+    .zcRing{
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-size:13px;
+      font-weight:900;
+      line-height:1;
+      background:#fff;
+      border:2px solid var(--offBorder);
+      color:var(--offText);
+    }
+    .zcRing.off{ background:var(--offBg); }
+    .zcRing.z.on{ border-color:var(--zBorder); color:var(--zText); background:#fff; }
+    .zcRing.c.on{ border-color:var(--cBorder); color:var(--cText); background:#fff; }
+
+    /* ===== ✅ 注意事項展開文字：文字內容1 粗體 + 條款前空一行 ===== */
+    .accBody .t1{ font-weight:950; }
+    .accBody .gap{ height:10px; }
+    .accBody .clause{ font-weight:900; }
+
+    /* ===== Mobile cards ===== */
     @media (max-width: 560px){
       .wrap{ padding:14px 12px 24px; }
       .topbar{ align-items:flex-start; margin-bottom:10px; gap:10px; }
@@ -600,43 +642,6 @@
         gap:8px;
         flex: 0 0 auto;
       }
-
-      .mCycle{
-        display:inline-flex;
-        align-items:center;
-        gap:6px;
-        padding:4px 12px;
-        border-radius:999px;
-        font-size:12px;
-        font-weight:700;
-        white-space:nowrap;
-        border:1px solid #e5e7eb;
-        background:var(--mSubtle2);
-        color:#888;
-      }
-      .mCycle.warn{
-        background:var(--mCycleWarnBg);
-        color:var(--mCycleWarnText);
-        border-color:var(--mCycleWarnBorder);
-      }
-
-      .zcRow{ display:flex; gap:8px; }
-      .zcRing{
-        width:26px;
-        height:26px;
-        border-radius:999px;
-        display:grid;
-        place-items:center;
-        font-size:13px;
-        font-weight:900;
-        line-height:1;
-        background:#fff;
-        border:2px solid var(--offBorder);
-        color:var(--offText);
-      }
-      .zcRing.off{ background:var(--offBg); }
-      .zcRing.z.on{ border-color:var(--zBorder); color:var(--zText); background:#fff; }
-      .zcRing.c.on{ border-color:var(--cBorder); color:var(--cText); background:#fff; }
 
       .mGrid{
         display:grid;
@@ -755,7 +760,6 @@
       <div class="hd"><h3 id="titleUp">漲N%進處置</h3><span class="tag" id="tagUp">0</span></div>
       <div class="bd">
         <div id="tblUp"><div class="loading">資料讀取中…</div></div>
-        <!-- 保留但不再使用（改成每股卡片內手風琴） -->
         <div id="noteUp" class="notes" style="display:none"></div>
       </div>
     </div>
@@ -766,7 +770,6 @@
       <div class="hd"><h3 id="titleDown">跌N%進處置</h3><span class="tag" id="tagDown">0</span></div>
       <div class="bd">
         <div id="tblDown"><div class="loading">資料讀取中…</div></div>
-        <!-- 保留但不再使用（改成每股卡片內手風琴） -->
         <div id="noteDown" class="notes" style="display:none"></div>
       </div>
     </div>
@@ -783,9 +786,6 @@
 </div>
 
 <script>
-  /* =========================================================
-     ✅ GitHub Pages：讀同 repo 的 data.json（同網域，手機穩）
-     ========================================================= */
   const DATA_PATH = "./data.json";
 
   function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
@@ -823,7 +823,6 @@
     return hasPrice || hasPct;
   }
 
-  /* ===== 桌機資券：圓圈框 ===== */
   function buildZCCell(z, c){
     const zOn = Number(z) === 1;
     const cOn = Number(c) === 1;
@@ -835,30 +834,6 @@
     `;
   }
 
-  function mergeZCPack(pack){
-    if(!pack?.headers?.length) return pack;
-    const hasZ = pack.headers.includes("資");
-    const hasC = pack.headers.includes("券");
-    const hasZC = pack.headers.includes("資券");
-    if(hasZC) return pack;
-    if(!hasZ && !hasC) return pack;
-
-    const idxZ = hasZ ? pack.headers.indexOf("資") : 1e9;
-    const idxC = hasC ? pack.headers.indexOf("券") : 1e9;
-    const insertAt = Math.min(idxZ, idxC);
-
-    const newHeaders = pack.headers.filter(h => h !== "資" && h !== "券");
-    newHeaders.splice(Math.min(insertAt, newHeaders.length), 0, "資券");
-
-    const newRows = (pack.rows||[]).map(r=>{
-      const z = r["資"];
-      const c = r["券"];
-      return Object.assign({}, r, { "資券": buildZCCell(z, c), "__z": z, "__c": c });
-    });
-
-    return { headers:newHeaders, rows:newRows };
-  }
-
   function mergeFinanceColumnsForDesk(pack){
     if (!pack?.headers || !pack.rows) return pack;
 
@@ -866,7 +841,6 @@
     const hasC = pack.headers.includes("融券資格");
     if (!hasZ || !hasC) return pack;
 
-    // 新 headers：移除原本兩欄，插入「融資券資格」
     const newHeaders = pack.headers.filter(
       h => h !== "融資資格" && h !== "融券資格"
     );
@@ -914,7 +888,7 @@
   }
 
   /* ===============================
-     ✅ 注意事項：三欄位 + 強制條款
+     ✅ 注意事項：文字內容1 粗體 + 條款前空一行（手機/桌機共用）
      =============================== */
   const FORCED_CLAUSE = "處置股票條款中有類股相關條款：其六日漲跌百分比與全體有價證券及同類有價證券依本項規定計算之平均值的差幅均在百分之二十以上，才符合條款。";
 
@@ -933,42 +907,46 @@
     return s;
   }
 
-  function buildNoteText(t1, t2, t3){
+  // ✅ 改為回傳「HTML字串」，方便做粗體與空行
+  function buildNoteHTML(t1, t2, t3){
     const a = cleanText(t1);
     const b = cleanText(t2);
     const c = cleanText(t3);
 
-    // 只要三者任一有內容才顯示
     if(!a && !b && !c) return "";
 
-    // 你指定的呈現順序：
-    // 【注意事項】
-    // 文字內容1
-    // (換行) + 強制條款
-    // 文字內容2
-    // 補充說明(若有)
-    let lines = [];
-    lines.push("【注意事項】");
-    if(a) lines.push(a);
-    lines.push("**" + FORCED_CLAUSE);
-    if(b) lines.push(b);
-    if(c) lines.push(c);
-    return lines.join("\n");
+    let html = `<div><div style="font-weight:950;margin-bottom:6px;">【注意事項】</div>`;
+
+    if(a){
+      html += `<div class="t1">${esc(a)}</div>`;
+      html += `<div class="gap"></div>`; // ✅ 空一行（視覺間距）
+    }
+
+    // ✅ 條款（保留你原本的 "*"）
+    html += `<div class="clause">*${esc(FORCED_CLAUSE)}</div>`;
+
+    if(b){
+      html += `<div style="margin-top:10px;">${esc(b)}</div>`;
+    }
+    if(c){
+      html += `<div style="margin-top:10px;">${esc(c)}</div>`;
+    }
+
+    html += `</div>`;
+    return html;
   }
 
-  function accHTML(noteText){
-    if(!noteText) return "";
-    // accHint 只是小提示，不改你整體色系
+  function accHTML(noteHTML){
+    if(!noteHTML) return "";
     return `
       <button class="accBtn" type="button" data-acc="toggle">
         <span>注意事項</span>
         <span class="accHint">點一下展開</span>
       </button>
-      <div class="accBody">${esc(noteText)}</div>
+      <div class="accBody">${noteHTML}</div>
     `;
   }
 
-  /* ===== Mobile cards: Up/Down (with Z/C + accordion) ===== */
   function renderMobileTriggerJSX(pack){
     const headers = pack.headers || [];
     const rows = pack.rows || [];
@@ -984,7 +962,7 @@
     const {k1,k2,k3} = getNoteKeys(headers);
 
     let html = `<div class="mCards">`;
-    rows.forEach((r, idx)=>{
+    rows.forEach((r)=>{
       const cycleKey = findCycleKey(headers, r);
       const cycleVal = cycleKey ? r[cycleKey] : "";
       const isWarn = num(cycleVal) >= 20;
@@ -1001,16 +979,14 @@
       const z = (r["__z"]!=null) ? r["__z"] : r["資"];
       const c = (r["__c"]!=null) ? r["__c"] : r["券"];
 
-      const noteText = buildNoteText(
+      const noteHTML = buildNoteHTML(
         k1 ? r[k1] : "",
         k2 ? r[k2] : "",
         k3 ? r[k3] : ""
       );
 
-      const hasAcc = !!noteText;
-
       html += `
-        <div class="mCard ${isWarn ? "warn" : ""}" ${hasAcc ? `data-acc-item="1"` : ""}>
+        <div class="mCard ${isWarn ? "warn" : ""}" ${noteHTML ? `data-acc-item="1"` : ""}>
           <div class="mTop">
             <div class="mId">
               <div class="mCode">${code || "—"}</div>
@@ -1035,7 +1011,7 @@
             </div>
           </div>
 
-          ${hasAcc ? accHTML(noteText) : ""}
+          ${noteHTML ? accHTML(noteHTML) : ""}
         </div>
       `;
     });
@@ -1043,7 +1019,6 @@
     return html;
   }
 
-  /* ===== Mobile cards: Soon/Disposed (NO Z/C) ===== */
   function renderMobilePeriodJSX(pack){
     const headers = pack.headers || [];
     const rows = pack.rows || [];
@@ -1096,7 +1071,6 @@
     return html;
   }
 
-  /* ===== main render (desktop table + mobile cards) ===== */
   function render(el, pack, center=[], rawCols=[]){
     if(!pack||!pack.headers||!pack.rows?.length){
       el.innerHTML = `<div class="empty">沒有相關股票</div>`;
@@ -1130,10 +1104,6 @@
     el.innerHTML = t + m;
   }
 
-  /* ===============================
-     ✅ Up/Down：桌機改成「左右兩張卡」
-     (手機維持原卡片 + 手風琴)
-     =============================== */
   function renderUpDownSection(el, pack){
     if(!pack||!pack.headers||!pack.rows?.length){
       el.innerHTML = `<div class="empty">沒有相關股票</div>`;
@@ -1153,9 +1123,8 @@
 
     const {k1,k2,k3} = getNoteKeys(headers);
 
-    // ✅ 桌機卡片（兩欄）
     let desk = `<div class="udDesk"><div class="udGrid">`;
-    rows.forEach((r, idx)=>{
+    rows.forEach((r)=>{
       const cycleKey = findCycleKey(headers, r);
       const cycleVal = cycleKey ? r[cycleKey] : "";
       const isWarn = num(cycleVal) >= 20;
@@ -1172,16 +1141,14 @@
       const z = (r["__z"]!=null) ? r["__z"] : r["資"];
       const c = (r["__c"]!=null) ? r["__c"] : r["券"];
 
-      const noteText = buildNoteText(
+      const noteHTML = buildNoteHTML(
         k1 ? r[k1] : "",
         k2 ? r[k2] : "",
         k3 ? r[k3] : ""
       );
 
-      const hasAcc = !!noteText;
-
       desk += `
-        <div class="udCard ${isWarn ? "warn" : ""}" ${hasAcc ? `data-acc-item="1"` : ""}>
+        <div class="udCard ${isWarn ? "warn" : ""}" ${noteHTML ? `data-acc-item="1"` : ""}>
           <div class="udTop">
             <div class="udId">
               <div class="udCode">${code || "—"}</div>
@@ -1206,20 +1173,16 @@
             </div>
           </div>
 
-          ${hasAcc ? accHTML(noteText) : ""}
+          ${noteHTML ? accHTML(noteHTML) : ""}
         </div>
       `;
     });
     desk += `</div></div>`;
 
-    // ✅ 手機卡片（維持原 mCards 風格 + 手風琴）
     const mobile = renderMobileTriggerJSX(pack);
-
-    // ✅ 合併輸出：桌機看 desk、手機看 mobile（透過 CSS 控制顯示）
     el.innerHTML = desk + mobile;
   }
 
-  /* ===== Fast page: kanban ===== */
   function renderFast(el, pack){
     if(!pack||!pack.headers||!pack.rows||!pack.rows.length){
       el.innerHTML = '<div class="empty">沒有相關股票</div>';
@@ -1290,7 +1253,6 @@
   }
   window.addEventListener("hashchange", initFromHash);
 
-  // ✅ iOS / mobile 兼容：不要依賴「id 自動變全域變數」
   const updatedPill = document.getElementById("updatedPill");
   const titleUp = document.getElementById("titleUp");
   const titleDown = document.getElementById("titleDown");
@@ -1325,7 +1287,7 @@
   });
 
   async function loadAllDataFromJson(){
-    const url = `${DATA_PATH}?v=${Date.now()}`; // bust cache
+    const url = `${DATA_PATH}?v=${Date.now()}`;
     const r = await fetch(url, { cache: "no-store" });
     if(!r.ok) throw new Error(`fetch ${DATA_PATH} HTTP ${r.status}`);
     return await r.json();
@@ -1333,7 +1295,6 @@
 
   function bindAccordions(root){
     if(!root) return;
-    // 事件委派：只處理 data-acc="toggle"
     root.addEventListener("click", (ev)=>{
       const btn = ev.target?.closest?.('[data-acc="toggle"]');
       if(!btn) return;
@@ -1353,7 +1314,7 @@
       titleUp.textContent = d ? `漲N% ${d} 進處置` : "漲N%進處置";
       titleDown.textContent = d ? `跌N% ${d} 進處置` : "跌N%進處置";
 
-      // ✅ 其他專區完全不動：沿用原 render / renderFast
+      // ✅ 其他專區完全不動
       render(tblSoon, res.data.soonRelease);
       render(tblDisposed, res.data.disposed);
       renderFast(tblFast, res.data.fastestN);
@@ -1376,18 +1337,15 @@
       navDown.textContent = `共${cDown}檔`;
       navFast.textContent = `共${cFast}檔`;
 
-      // Up
       if(!cUp){
         cardUp.style.display = "none";
         if((location.hash||"") === "#up") setActive("soon");
       }else{
         cardUp.style.display = "flex";
         const upPackMerged = mergeFinanceColumnsForDesk(res.data.up);
-        // ✅ 只改 Up/Down：桌機卡片兩欄 + 手機維持原卡片
         renderUpDownSection(tblUp, upPackMerged);
       }
 
-      // Down
       if(!cDown){
         cardDown.style.display = "none";
         if((location.hash||"") === "#down") setActive("soon");
@@ -1397,15 +1355,12 @@
         renderUpDownSection(tblDown, downPackMerged);
       }
 
-      // ✅ 不再使用底部 note 區塊
       if(noteUp) noteUp.style.display = "none";
       if(noteDown) noteDown.style.display = "none";
 
-      // ✅ 綁定手風琴（Up/Down 卡片內）
       bindAccordions(tblUp);
       bindAccordions(tblDown);
 
-      // init page
       initFromHash();
     }catch(err){
       console.error(err);
