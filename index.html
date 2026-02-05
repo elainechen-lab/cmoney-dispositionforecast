@@ -3,272 +3,418 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>處置股預測</title>
+
+  <title>CMoney 處置股預測</title>
 
   <style>
     :root{
-      --bg1:#0b1220;
-      --bg2:#0f1a33;
-      --card:rgba(255,255,255,.06);
-      --card2:rgba(255,255,255,.08);
-      --text:#e8eefc;
-      --muted:#9fb0d0;
-      --line:rgba(255,255,255,.12);
-      --shadow:0 14px 40px rgba(0,0,0,.35);
+      --bg:#fde8e6;
+      --bg2:#f8d7d1;
+      --panel:#ffffffcc;
+      --panel2:#ffffffee;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:rgba(31,41,55,.12);
+      --shadow:0 16px 45px rgba(31,41,55,.12);
       --radius:16px;
 
-      --accent:#ff6b6b;
-      --accent2:#f59e0b;
-      --ok:#22c55e;
+      --brand:#8b0c0c;
+      --brand2:#b91c1c;
+      --chip:#6b0b0b;
 
-      --warnRowBg:rgba(253,186,116,.18);
-      --noteBg:rgba(255,255,255,.05);
+      --warnRow:#ffe2c4;
+      --card:#ffffff;
+      --cardLine:rgba(31,41,55,.10);
+
+      --ok:#16a34a;
+      --no:#9ca3af;
+
+      --accordionBg:#fff7f5;
+      --noteBg:#fff3ef;
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 700px at 15% 0%, rgba(255,107,107,.18), transparent 55%),
-        radial-gradient(900px 600px at 85% 20%, rgba(245,158,11,.16), transparent 55%),
-        linear-gradient(180deg, var(--bg2), var(--bg1));
+        radial-gradient(900px 500px at 10% 0%, #ffd4cf, transparent 60%),
+        radial-gradient(900px 500px at 90% 15%, #ffd6c7, transparent 60%),
+        linear-gradient(180deg, var(--bg), #fff);
       min-height:100vh;
     }
 
-    a{color:inherit}
-    .wrap{max-width:1200px; margin:0 auto; padding:20px 16px 40px;}
+    .wrap{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 14px 14px 32px;
+    }
 
-    .top{
-      display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
-      padding:8px 4px 14px;
+    /* ===== Top header ===== */
+    .topbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      padding: 8px 2px 12px;
     }
-    .title{
-      font-size:22px; font-weight:800; letter-spacing:.5px;
+    .brand{
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
     }
-    .sub{
-      font-size:12px; color:var(--muted); margin-top:6px;
+    .brand .logo{
+      font-weight: 900;
+      letter-spacing: .5px;
+      font-size: 34px;
+      color: var(--brand2);
+    }
+    .brand .title{
+      font-weight: 900;
+      letter-spacing: .3px;
+      font-size: 22px;
+      color: #111827;
     }
     .meta{
-      text-align:right; font-size:12px; color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      text-align:right;
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .meta .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background: #ffffffcc;
+      border:1px solid var(--line);
+      box-shadow: 0 10px 22px rgba(31,41,55,.08);
     }
 
+    /* ===== Tabs ===== */
     .tabs{
-      display:flex; flex-wrap:wrap; gap:8px;
-      margin:10px 0 16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding: 8px 0 16px;
     }
     .tab{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:10px;
       padding:10px 12px;
-      border-radius:12px;
+      border-radius: 12px;
+      border:1px solid rgba(139,12,12,.18);
+      background: linear-gradient(180deg, #7a0b0b, #5d0707);
+      color:#fff;
+      box-shadow: 0 10px 24px rgba(139,12,12,.18);
       cursor:pointer;
       user-select:none;
-      font-size:13px;
-      transition:transform .08s ease, background .12s ease, border-color .12s ease;
+      transition: transform .08s ease, filter .12s ease;
     }
-    .tab:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .tab:hover{ transform: translateY(-1px); filter: brightness(1.03); }
     .tab.active{
-      border-color:rgba(255,255,255,.22);
-      background:rgba(255,255,255,.08);
+      background: linear-gradient(180deg, #ffffff, #fff7f6);
+      color:#111827;
+      border:1px solid rgba(31,41,55,.18);
+      box-shadow: 0 10px 24px rgba(31,41,55,.10);
+    }
+    .tab .ico{
+      width:22px; height:22px;
+      display:grid; place-items:center;
+      border-radius: 8px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.18);
+      font-size:13px;
+    }
+    .tab.active .ico{
+      background: rgba(185,28,28,.10);
+      border-color: rgba(185,28,28,.18);
+    }
+    .tab .label{
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .2px;
+    }
+    .tab .count{
+      margin-left: 4px;
+      font-weight: 900;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.18);
+      white-space:nowrap;
+    }
+    .tab.active .count{
+      background: rgba(31,41,55,.06);
+      border-color: rgba(31,41,55,.10);
     }
 
+    /* ===== Panel ===== */
     .panel{
+      background: var(--panel2);
       border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
     .panelHd{
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffd2cd, #ffe6e2);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
-    .panelHd h2{
-      margin:0;
-      font-size:15px;
-      letter-spacing:.2px;
+    .panelHd .h{
+      font-weight: 900;
+      letter-spacing: .2px;
+      font-size: 16px;
     }
-    .pill{
+    .panelHd .rightBadge{
       font-size:12px;
-      color:var(--muted);
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      padding:6px 10px;
-      border-radius:999px;
+      font-weight:900;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background:#ffffffcc;
+      border: 1px solid var(--line);
       white-space:nowrap;
     }
 
-    /* ====== Desktop list/table (general) ====== */
-    .tableWrap{overflow:auto}
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      font-size:13px;
-      min-width:860px;
+    .panelBody{
+      padding: 12px;
     }
-    thead th{
-      position:sticky; top:0;
-      background:rgba(255,255,255,.06);
-      color:var(--muted);
-      text-align:left;
-      padding:10px 12px;
-      border-bottom:1px solid var(--line);
-      font-weight:700;
-      z-index:1;
-    }
-    tbody td{
-      padding:10px 12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      vertical-align:top;
-    }
-    tbody tr:hover td{background:rgba(255,255,255,.03)}
-    tbody tr.warn td{background:var(--warnRowBg)}
-    .center{text-align:center}
 
-    /* ====== Cards (Up/Down desktop requirement) ====== */
-    .cards{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:12px;
-      padding:12px;
-    }
-    .card{
-      border:1px solid rgba(255,255,255,.12);
-      background:var(--card);
-      border-radius:16px;
+    /* ===== Generic table (other tabs keep table) ===== */
+    .tableWrap{ overflow:auto; }
+    table{
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 980px;
+      font-size: 13px;
+      background:#fff;
+      border:1px solid var(--cardLine);
+      border-radius: 14px;
       overflow:hidden;
     }
-    .cardTop{
-      padding:12px 12px 10px;
-      display:flex; justify-content:space-between; gap:10px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.02);
+    thead th{
+      position: sticky;
+      top: 0;
+      background: #fff1ee;
+      border-bottom: 1px solid var(--cardLine);
+      color:#111827;
+      text-align:left;
+      padding: 10px 10px;
+      font-weight: 900;
+      z-index: 1;
     }
-    .cardLeft{min-width:0}
-    .stk{
-      display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;
-      font-weight:800;
+    tbody td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(31,41,55,.08);
+      vertical-align: top;
     }
-    .code{font-size:14px}
-    .name{font-size:13px; color:var(--muted); font-weight:700}
-    .badgeRow{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
-    .badge{
-      font-size:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.04);
-      padding:4px 8px;
-      border-radius:999px;
-      color:var(--text);
-      white-space:nowrap;
-    }
-    .badge.em{border-color:rgba(255,107,107,.35); background:rgba(255,107,107,.10)}
-    .badge.warn{border-color:rgba(245,158,11,.40); background:rgba(245,158,11,.12)}
-    .cardRight{
-      text-align:right;
-      display:flex; flex-direction:column; justify-content:center;
-      gap:6px;
-      min-width:110px;
-    }
-    .bigNum{
-      font-size:18px; font-weight:900;
-      letter-spacing:.2px;
-    }
-    .small{
-      font-size:12px; color:var(--muted);
+    tbody tr:last-child td{ border-bottom: 0; }
+    tbody tr.warn td{ background: var(--warnRow); }
+    .center{ text-align:center; }
+
+    /* ===== Up/Down: Accordion cards ===== */
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    /* ====== Collapsible note (both desktop & mobile) ====== */
-    details.note{
-      border-top:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.02);
+    details.acc{
+      border: 1px solid var(--cardLine);
+      border-radius: 14px;
+      overflow:hidden;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(31,41,55,.08);
     }
-    details.note > summary{
+    details.acc[open]{
+      background: var(--accordionBg);
+    }
+
+    summary.accSum{
       list-style:none;
       cursor:pointer;
-      padding:10px 12px;
-      color:var(--muted);
-      font-size:13px;
-      display:flex; align-items:center; justify-content:space-between;
       user-select:none;
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: #fff;
     }
-    details.note > summary::-webkit-details-marker{display:none}
-    .chev{
-      opacity:.8;
-      transform:rotate(0deg);
-      transition:transform .12s ease;
+    summary.accSum::-webkit-details-marker{ display:none; }
+
+    .accGrid{
+      display:grid;
+      grid-template-columns: 80px 1.4fr 110px 120px 110px 120px;
+      gap:8px;
+      align-items:center;
+      width:100%;
+      min-width: 0;
     }
-    details.note[open] .chev{transform:rotate(90deg)}
-    .noteBody{
-      padding:10px 12px 12px;
-      border-top:1px solid rgba(255,255,255,.08);
-      background:var(--noteBg);
-      color:var(--text);
-      font-size:13px;
-      line-height:1.6;
-      white-space:normal;
+    .gCode{ font-weight: 900; }
+    .gName{
+      color:#111827;
+      font-weight: 800;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
-    .noteTitle{
-      font-weight:900;
-      letter-spacing:.3px;
-      margin-bottom:6px;
+    .gMuted{ color: var(--muted); font-weight: 800; font-size:12px; }
+    .gNum{ font-weight: 900; }
+    .gLoop{
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border:1px solid rgba(31,41,55,.10);
+      background: rgba(31,41,55,.03);
+      display:inline-flex;
+      justify-content:center;
+      white-space:nowrap;
     }
-    .noteStrong{
-      font-weight:900;
+    .gLoop.warn{
+      border-color: rgba(245,158,11,.35);
+      background: rgba(245,158,11,.16);
     }
 
-    /* ====== Mobile: keep "board" feel ====== */
-    @media (max-width: 860px){
-      .cards{grid-template-columns:1fr}
-      table{min-width:760px}
+    .chips{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .chip{
+      width:28px; height:28px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      font-weight: 900;
+      font-size: 12px;
+      border: 2px solid var(--no);
+      color: var(--no);
+      background: #f3f4f6;
+    }
+    .chip.on{
+      border-color: var(--ok);
+      color: var(--ok);
+      background: #eafff1;
+    }
+
+    .chev{
+      width:34px;
+      display:flex;
+      justify-content:flex-end;
+      color: rgba(31,41,55,.55);
+      font-size: 16px;
+      font-weight: 900;
+      transition: transform .12s ease;
+    }
+    details.acc[open] .chev{ transform: rotate(90deg); }
+
+    /* expanded */
+    .accBody{
+      border-top: 1px solid rgba(31,41,55,.10);
+      padding: 12px 12px 14px;
+      background: var(--noteBg);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .noteTitle{
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .noteStrong{ font-weight: 900; }
+    .noteBlock{ margin-top: 6px; white-space: pre-wrap; }
+
+    /* non-expandable item (no note) */
+    .plainCard{
+      border: 1px solid var(--cardLine);
+      border-radius: 14px;
+      overflow:hidden;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(31,41,55,.08);
+      padding: 10px 12px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 980px){
+      table{ min-width: 860px; }
+      .accGrid{
+        grid-template-columns: 74px 1fr 92px 92px;
+      }
+      .hideMd{ display:none; }
     }
 
     @media (max-width: 640px){
-      .wrap{padding:16px 12px 34px}
-      .title{font-size:18px}
-      .panelHd{padding:12px 12px}
-      .cards{padding:10px}
-      .cardTop{padding:10px}
-      .bigNum{font-size:17px}
+      .brand .logo{ font-size: 28px; }
+      .brand .title{ font-size: 18px; }
+      .panelBody{ padding: 10px; }
+
+      /* mobile keeps “board” feel: summary becomes stacked */
+      summary.accSum{ padding: 10px 10px; }
+      .accGrid{
+        grid-template-columns: 68px 1fr;
+        grid-auto-rows: auto;
+        row-gap: 6px;
+      }
+      .mobileRow{
+        grid-column: 1 / -1;
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        align-items:center;
+      }
+      .chips{ justify-content:flex-start; }
+      .chev{ width:auto; }
     }
 
     .loading{
-      padding:22px 16px;
-      color:var(--muted);
-      font-size:13px;
+      padding: 18px 12px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
     }
     .err{
-      padding:16px;
-      color:#fecaca;
-      font-size:13px;
-      border-top:1px solid rgba(255,255,255,.10);
-      background:rgba(255,107,107,.10);
+      margin: 10px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(185,28,28,.25);
+      background: rgba(185,28,28,.08);
+      color: #7f1d1d;
+      font-weight: 800;
+      font-size: 13px;
     }
 
     footer{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:12px;
+      margin-top: 16px;
       text-align:center;
-      opacity:.9;
+      color: var(--muted);
+      font-size: 12px;
+      opacity: .9;
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="top">
-      <div>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">CMoney</div>
         <div class="title">處置股預測</div>
-        <div class="sub">資料來源：data.json（GitHub Pages）</div>
       </div>
       <div class="meta">
-        <div>交易日：<span id="tradeDate">-</span></div>
-        <div>更新時間：<span id="updatedAt">-</span></div>
+        <div class="pill">更新時間：<span id="updatedAt">-</span></div>
       </div>
     </div>
 
@@ -276,10 +422,12 @@
 
     <div class="panel">
       <div class="panelHd">
-        <h2 id="panelTitle">載入中…</h2>
-        <div class="pill" id="panelPill">—</div>
+        <div class="h" id="panelTitle">載入中…</div>
+        <div class="rightBadge" id="panelBadge">—</div>
       </div>
-      <div id="panelBody" class="loading">開啟資料中…</div>
+      <div class="panelBody" id="panelBody">
+        <div class="loading">開啟資料中…</div>
+      </div>
     </div>
 
     <footer>© CMoney. All rights reserved.</footer>
@@ -287,26 +435,26 @@
 
   <script>
     // ===============================
-    // ✅ 你的 data.json 路徑
+    // ✅ data.json 路徑
     // ===============================
-    // 如果 index.html 與 data.json 同層，就用 "./data.json"
     const DATA_URL = "./data.json";
 
     // ===============================
-    // UI tabs order
+    // Tabs configuration
     // ===============================
     const PANELS = [
-      { key: "soonRelease", title: "即將出關" },
-      { key: "disposed",    title: "處置中" },
-      { key: "up",          title: "漲N%進處置" },
-      { key: "down",        title: "跌N%進處置" },
-      { key: "fastestN",    title: "最快N日進處置" }
+      { key: "soonRelease", title: "即將出關", icon:"⏳" },
+      { key: "disposed",    title: "處置中",   icon:"⛓️" },
+      { key: "up",          title: "漲N%進處置", icon:"📈" },
+      { key: "down",        title: "跌N%進處置", icon:"📉" },
+      { key: "fastestN",    title: "最快N日進處置", icon:"⚡" },
     ];
 
-    // 你指定要強制插入的條款文字
+    // 你指定要強制插入的條款文字（粗體）
     const CLAUSE_LINE = "處置股票條款中有類股相關條款：其六日漲跌百分比與全體有價證券及同類有價證券依本項規定計算之平均值的差幅均在百分之二十以上，才符合條款。";
 
     let gPayload = null;
+    let gActiveKey = PANELS[0].key;
 
     // ===============================
     // Helpers
@@ -325,7 +473,6 @@
 
     const br = (s) => esc(s).replaceAll("\n", "<br>");
 
-    // 用多個可能欄位名去猜（避免你 SP 欄位名有細微差異）
     const pick = (row, keys, fallback="") => {
       for (const k of keys){
         if (row && Object.prototype.hasOwnProperty.call(row, k) && !isEmpty(row[k])) return row[k];
@@ -333,42 +480,64 @@
       return fallback;
     };
 
-    // 取代常見欄位：代號/名稱/漲跌幅/循環時間/處置期間等
-    const getCode = (row) => pick(row, ["標的代號","代號","股票代號","StockID","stockId","code"]);
-    const getName = (row) => pick(row, ["標的名稱","名稱","股票名稱","StockName","stockName","name"]);
-    const getPct  = (row) => pick(row, ["漲跌幅(%)","漲跌幅%","漲跌幅","N%","幅度","pct","Pct"]);
-    const getVol  = (row) => pick(row, ["成交量","量","Volume","volume"]);
-    const getLoop = (row) => pick(row, ["循環時間(分)","循環時間","循環時間(分鐘)","loop","Loop"]);
-    const getStart= (row) => pick(row, ["處置起日","起日","StartDate","start"]);
-    const getEnd  = (row) => pick(row, ["處置迄日","迄日","EndDate","end"]);
-    const getDays = (row) => pick(row, ["剩餘天數","剩餘日","剩餘","daysLeft","DaysLeft"]);
+    // ===== Common columns (try multiple aliases to be robust) =====
+    const getCode = (r)=> pick(r, ["股票代號","標的代號","代號","StockID","stockId","code"]);
+    const getName = (r)=> pick(r, ["股票名稱","標的名稱","名稱","StockName","stockName","name"]);
 
-    // 你的新說明欄位
-    const getText1 = (row) => pick(row, ["文字內容1","文字1","內容1","Text1","text1"]);
-    const getText2 = (row) => pick(row, ["文字內容2","文字2","內容2","Text2","text2"]);
-    const getExtra = (row) => pick(row, ["補充說明","補充","Extra","extra","Note","note"]);
+    const getTriggerPrice = (r)=> pick(r, ["觸發價格","觸發價","價格","Price","price"]);
+    const getTriggerPct   = (r)=> pick(r, ["觸發漲跌幅(%)","觸發漲跌幅%","觸發漲跌幅","漲跌幅(%)","漲跌幅","Pct","pct"]);
+    const getLoop         = (r)=> pick(r, ["循環時間(分)","循環時間","循環時間(分鐘)","loop","Loop"]);
+
+    // 你的資/券欄位：可能是 1/0、Y/N、true/false、或直接有字
+    const getMargin = (r)=> pick(r, ["資","可資","融資","Margin","margin"]);
+    const getShort  = (r)=> pick(r, ["券","可券","融券","Short","short"]);
+
+    const asBool = (v)=>{
+      if (isEmpty(v)) return false;
+      const s = String(v).trim().toLowerCase();
+      if (s === "1" || s === "y" || s === "yes" || s === "true" || s === "t") return true;
+      if (s === "0" || s === "n" || s === "no" || s === "false" || s === "f") return false;
+      // 若直接是 "資" / "券" 或其他文字，也視為 true
+      return true;
+    };
+
+    // 新說明欄位
+    const getText1 = (r)=> pick(r, ["文字內容1","文字1","內容1","Text1","text1"]);
+    const getText2 = (r)=> pick(r, ["文字內容2","文字2","內容2","Text2","text2"]);
+    const getExtra = (r)=> pick(r, ["補充說明","補充","Extra","extra","Note","note"]);
 
     // ===============================
-    // Render tabs
+    // Render Tabs
     // ===============================
-    function renderTabs(activeKey){
+    function renderTabs(){
       const tabs = document.getElementById("tabs");
       tabs.innerHTML = "";
+
       for (const p of PANELS){
-        const btn = document.createElement("div");
-        btn.className = "tab" + (p.key === activeKey ? " active" : "");
-        btn.textContent = p.title;
-        btn.onclick = () => showPanel(p.key);
-        tabs.appendChild(btn);
+        const cnt = (gPayload?.data?.[p.key]?.rows || []).length;
+
+        const el = document.createElement("div");
+        el.className = "tab" + (p.key === gActiveKey ? " active" : "");
+        el.innerHTML = `
+          <div class="ico">${esc(p.icon)}</div>
+          <div class="label">${esc(p.title)}</div>
+          <div class="count">共${cnt}檔</div>
+        `;
+        el.onclick = ()=> {
+          gActiveKey = p.key;
+          renderTabs();
+          showPanel(p.key);
+        };
+        tabs.appendChild(el);
       }
     }
 
     // ===============================
-    // Render generic table panel
+    // Generic Table (other panels)
     // ===============================
     function renderTable(pack){
-      const headers = (pack && pack.headers) ? pack.headers : [];
-      const rows = (pack && pack.rows) ? pack.rows : [];
+      const headers = pack?.headers || [];
+      const rows = pack?.rows || [];
 
       if (!headers.length) return `<div class="loading">沒有資料</div>`;
 
@@ -377,9 +546,9 @@
         const loop = getLoop(r);
         const warn = (!isEmpty(loop) && Number(loop) >= 20) ? "warn" : "";
         const tds = headers.map(h => {
-          const v = (r && Object.prototype.hasOwnProperty.call(r, h)) ? r[h] : "";
-          const cls = (typeof v === "number" || String(v).match(/^[-]?\d+(\.\d+)?$/)) ? "center" : "";
-          return `<td class="${cls}">${esc(v)}</td>`;
+          const v = Object.prototype.hasOwnProperty.call(r, h) ? r[h] : "";
+          const isNum = (typeof v === "number") || String(v).match(/^[-]?\d+(\.\d+)?$/);
+          return `<td class="${isNum ? "center" : ""}">${esc(v)}</td>`;
         }).join("");
         return `<tr class="${warn}">${tds}</tr>`;
       }).join("");
@@ -395,111 +564,148 @@
     }
 
     // ===============================
-    // Render Up/Down cards with expandable notes
+    // Up/Down Accordion Cards (your requested style)
     // ===============================
-    function renderUpDownCards(pack){
-      const rows = (pack && pack.rows) ? pack.rows : [];
+    function renderUpDownAccordion(pack){
+      const rows = pack?.rows || [];
       if (!rows.length) return `<div class="loading">沒有資料</div>`;
 
       const html = rows.map(r => {
         const code = getCode(r);
         const name = getName(r);
-        const pct  = getPct(r);
-        const vol  = getVol(r);
-        const loop = getLoop(r);
-        const start= getStart(r);
-        const end  = getEnd(r);
-        const days = getDays(r);
+
+        const price = getTriggerPrice(r);
+        const pct   = getTriggerPct(r);
+        const loop  = getLoop(r);
+
+        const m = asBool(getMargin(r));
+        const s = asBool(getShort(r));
 
         const t1 = getText1(r);
         const t2 = getText2(r);
         const ex = getExtra(r);
+
         const hasNote = !(isEmpty(t1) && isEmpty(t2) && isEmpty(ex));
 
-        // badges: 你可以依照你現有欄位再加
-        const badges = [];
-        if (!isEmpty(start) || !isEmpty(end)) badges.push(`<span class="badge warn">處置期間 ${esc(start)} ~ ${esc(end)}</span>`);
-        if (!isEmpty(days)) badges.push(`<span class="badge">剩餘 ${esc(days)} 天</span>`);
-        if (!isEmpty(loop)) badges.push(`<span class="badge ${Number(loop) >= 20 ? "warn" : ""}">循環 ${esc(loop)} 分</span>`);
-        if (!isEmpty(vol))  badges.push(`<span class="badge">量 ${esc(vol)}</span>`);
+        const loopWarn = (!isEmpty(loop) && Number(loop) >= 20);
 
-        const noteBlock = hasNote ? `
-          <details class="note">
-            <summary>
-              <span>點我展開注意事項</span>
-              <span class="chev">›</span>
-            </summary>
-            <div class="noteBody">
-              <div class="noteTitle">【注意事項】</div>
-              ${!isEmpty(t1) ? `<div>${br(t1)}</div>` : ``}
-              <div class="noteStrong">**${esc(CLAUSE_LINE)}**</div>
-              ${!isEmpty(t2) ? `<div style="margin-top:6px">${br(t2)}</div>` : ``}
-              ${!isEmpty(ex) ? `<div style="margin-top:6px">${br(ex)}</div>` : ``}
+        // mobile extra row
+        const mobileRow = `
+          <div class="mobileRow">
+            <div>
+              <span class="gMuted">觸發價</span>
+              <span class="gNum">${esc(price)}</span>
+              <span class="gMuted">｜幅度</span>
+              <span class="gNum">${esc(pct)}</span>
             </div>
-          </details>
-        ` : ``;
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span class="gLoop ${loopWarn ? "warn" : ""}">${esc(loop)} 分</span>
+              <div class="chips">
+                <span class="chip ${m ? "on" : ""}">資</span>
+                <span class="chip ${s ? "on" : ""}">券</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const grid = `
+          <div class="accGrid">
+            <div>
+              <div class="gMuted">代號</div>
+              <div class="gCode">${esc(code)}</div>
+            </div>
+            <div style="min-width:0;">
+              <div class="gMuted">名稱</div>
+              <div class="gName" title="${esc(name)}">${esc(name)}</div>
+            </div>
+
+            <div class="hideMd">
+              <div class="gMuted">觸發價</div>
+              <div class="gNum">${esc(price)}</div>
+            </div>
+            <div class="hideMd">
+              <div class="gMuted">觸發幅度</div>
+              <div class="gNum">${esc(pct)}</div>
+            </div>
+
+            <div class="hideMd" style="display:flex; flex-direction:column; gap:4px;">
+              <div class="gMuted">循環(分)</div>
+              <div class="gLoop ${loopWarn ? "warn" : ""}">${esc(loop)} 分</div>
+            </div>
+
+            <div class="hideMd">
+              <div class="gMuted">融資 / 融券</div>
+              <div class="chips" style="justify-content:flex-start; margin-top:6px;">
+                <span class="chip ${m ? "on" : ""}">資</span>
+                <span class="chip ${s ? "on" : ""}">券</span>
+              </div>
+            </div>
+
+            ${mobileRow}
+          </div>
+        `;
+
+        const noteHtml = `
+          <div class="accBody">
+            <div class="noteTitle">【注意事項】</div>
+
+            ${!isEmpty(t1) ? `<div class="noteBlock">${br(t1)}</div>` : ``}
+
+            <div class="noteBlock noteStrong">**${esc(CLAUSE_LINE)}**</div>
+
+            ${!isEmpty(t2) ? `<div class="noteBlock">${br(t2)}</div>` : ``}
+
+            ${!isEmpty(ex) ? `<div class="noteBlock">${br(ex)}</div>` : ``}
+          </div>
+        `;
+
+        // If no note => not expandable, keep card look but no accordion
+        if (!hasNote){
+          return `<div class="plainCard">${grid}</div>`;
+        }
 
         return `
-          <div class="card">
-            <div class="cardTop">
-              <div class="cardLeft">
-                <div class="stk">
-                  <span class="code">${esc(code)}</span>
-                  <span class="name">${esc(name)}</span>
-                </div>
-                <div class="badgeRow">
-                  ${badges.join("")}
-                </div>
-              </div>
-              <div class="cardRight">
-                <div class="bigNum">${esc(pct)}</div>
-                <div class="small">漲跌幅 / N%</div>
-              </div>
-            </div>
-            ${noteBlock}
-          </div>
+          <details class="acc">
+            <summary class="accSum">
+              ${grid}
+              <div class="chev">›</div>
+            </summary>
+            ${noteHtml}
+          </details>
         `;
       }).join("");
 
-      return `<div class="cards">${html}</div>`;
+      return `<div class="list">${html}</div>`;
     }
 
     // ===============================
-    // Show panel
+    // Show Panel
     // ===============================
     function showPanel(key){
-      renderTabs(key);
-
-      const panelTitle = document.getElementById("panelTitle");
-      const panelPill  = document.getElementById("panelPill");
-      const panelBody  = document.getElementById("panelBody");
+      const titleEl = document.getElementById("panelTitle");
+      const badgeEl = document.getElementById("panelBadge");
+      const bodyEl  = document.getElementById("panelBody");
 
       const p = PANELS.find(x => x.key === key);
-      panelTitle.textContent = p ? p.title : key;
+      titleEl.textContent = p ? p.title : key;
 
       const pack = gPayload?.data?.[key];
-      const rowCount = pack?.rows ? pack.rows.length : 0;
-      panelPill.textContent = `筆數：${rowCount}`;
+      const cnt = (pack?.rows || []).length;
+      badgeEl.textContent = `共${cnt}檔`;
 
-      // Up/Down: 桌機要卡片式，手機也可保留同樣呈現（不破壞看板感）
       if (key === "up" || key === "down"){
-        panelBody.className = "";
-        panelBody.innerHTML = renderUpDownCards(pack);
-        return;
+        bodyEl.innerHTML = renderUpDownAccordion(pack);
+      }else{
+        bodyEl.innerHTML = renderTable(pack);
       }
-
-      // Other panels: keep table style
-      panelBody.className = "";
-      panelBody.innerHTML = renderTable(pack);
     }
 
     // ===============================
-    // Load data.json
+    // Load Data
     // ===============================
     async function loadData(){
-      const panelBody = document.getElementById("panelBody");
-      panelBody.className = "loading";
-      panelBody.textContent = "開啟資料中…";
+      const bodyEl = document.getElementById("panelBody");
+      bodyEl.innerHTML = `<div class="loading">開啟資料中…</div>`;
 
       try{
         const res = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
@@ -507,14 +713,13 @@
         const payload = await res.json();
         gPayload = payload;
 
-        document.getElementById("tradeDate").textContent = payload.tradeDate || "-";
-        document.getElementById("updatedAt").textContent = payload.updatedAt ? payload.updatedAt : "-";
+        document.getElementById("updatedAt").textContent = payload.updatedAt || "-";
 
-        // default panel
-        showPanel("soonRelease");
+        renderTabs();
+        showPanel(gActiveKey);
+
       }catch(err){
-        panelBody.className = "err";
-        panelBody.innerHTML = `讀取 data.json 失敗：${esc(err.message)}<br>請確認 DATA_URL 是否正確，以及 GitHub Pages 是否已更新。`;
+        bodyEl.innerHTML = `<div class="err">讀取 data.json 失敗：${esc(err.message)}<br>請確認 DATA_URL 是否正確，以及 GitHub Pages 是否已更新。</div>`;
       }
     }
 
